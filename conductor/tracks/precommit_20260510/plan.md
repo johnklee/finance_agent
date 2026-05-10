@@ -1,7 +1,7 @@
 # Implementation Plan: Setup Github Pre-commit hook (Issue #4)
 
 ## Phase 1: Configuration
-- [ ] Task: Create `.pre-commit-config.yaml` with the specified `ruff` configuration.
+- [x] Task: Create `.pre-commit-config.yaml` with the specified `ruff` configuration. 87e4578
 - [ ] Task: Update `pyproject.toml` to include `pre-commit` as a development dependency.
 - [ ] Task: Conductor - User Manual Verification 'Configuration' (Protocol in workflow.md)
 
