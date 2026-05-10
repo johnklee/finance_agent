@@ -1,11 +1,11 @@
 ---
-name: github-issue-puller
-description: Pulls a list of issues or a specific issue from a GitHub repository, including title and body.
+name: conductor-process-github-issue
+description: Pull a GitHub issue, including title and body, and then treat it as a feature/task to implement.
 ---
 
-# GitHub Issue Puller
+# Conductor in processing issue from Github
 
-Use this skill when the user asks to "pull," "fetch,", "get" or "list" issues from a GitHub repository.
+Use this skill when the user asks to get or fetch the feature, task from the Github issue.
 
 ## Instructions
 1. **Identify Repository:** If the user doesn't specify a repository, assume the current directory's repository (which is `https://github.com/johnklee/finance_agent`).
