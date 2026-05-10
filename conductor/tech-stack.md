@@ -14,5 +14,9 @@
 - **Current Database:** SQLite (Local caching)
 - **ORM (Planned):** SQLAlchemy
 
+## Development Tools
+- **Linting & Formatting:** `ruff`
+- **Git Hooks:** `pre-commit`
+
 ## Architecture
 - **Agent Framework:** Custom implementation (located in `finance_agent/agent/`)
