@@ -6,6 +6,6 @@
 - [x] Task: Conductor - User Manual Verification 'Configuration' (Protocol in workflow.md)
 
 ## Phase 2: Installation and Testing
-- [ ] Task: Run `pre-commit install` to set up the git hooks locally.
+- [x] Task: Run `pre-commit install` to set up the git hooks locally. 866e877
 - [ ] Task: Run `pre-commit run --all-files` to ensure the configuration is valid and works on the current codebase.
 - [ ] Task: Conductor - User Manual Verification 'Installation and Testing' (Protocol in workflow.md)
