@@ -2,7 +2,7 @@
 
 ## Phase 1: Configuration
 - [x] Task: Create `.pre-commit-config.yaml` with the specified `ruff` configuration. 87e4578
-- [ ] Task: Update `pyproject.toml` to include `pre-commit` as a development dependency.
+- [x] Task: Update `pyproject.toml` to include `pre-commit` as a development dependency. 98ead41
 - [ ] Task: Conductor - User Manual Verification 'Configuration' (Protocol in workflow.md)
 
 ## Phase 2: Installation and Testing
