@@ -1,7 +1,7 @@
 """Package to keep tools/utilities used in the repo."""
 
 import dataclasses
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
@@ -23,6 +23,7 @@ class StockInfo:
     market_cap: float
 
 
+@runtime_checkable
 class BaseProvider(Protocol):
     """Provider base class to get Finance data."""
 
