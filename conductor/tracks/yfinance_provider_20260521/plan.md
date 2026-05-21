@@ -14,12 +14,5 @@
 
 ## Phase 3: Implement YahooFinanceProvider
 - [x] Task: Write failing tests for `YahooFinanceProvider` d2c88dc
-    - [ ] Sub-task: Create `tests/tools/test_yfinance_finance.py`
-    - [ ] Sub-task: Write test for successful data retrieval (mocking `yfinance.Ticker`)
-    - [ ] Sub-task: Write test for invalid symbol (mocking `yfinance.Ticker` to raise an exception or return empty data)
-- [ ] Task: Implement `YahooFinanceProvider` to pass tests
-    - [ ] Sub-task: Create `finance_agent/tools/yfinance_finance.py`
-    - [ ] Sub-task: Implement `YahooFinanceProvider` class inheriting from `BaseProvider`
-    - [ ] Sub-task: Implement `get_stock_info` method using `yfinance.Ticker`
-    - [ ] Sub-task: Add error handling to catch `yfinance` exceptions and raise `FinanceDataError`
+- [x] Task: Implement `YahooFinanceProvider` to pass tests 9d13d09
 - [ ] Task: Conductor - User Manual Verification 'Phase 3: Implement YahooFinanceProvider' (Protocol in workflow.md)
