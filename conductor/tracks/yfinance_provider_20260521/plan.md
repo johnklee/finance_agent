@@ -10,7 +10,7 @@
 - [x] Task: Create custom exception fda9f8b
     - [ ] Sub-task: Create `finance_agent/tools/exceptions.py` (if it doesn't exist) or add to `finance_agent/tools/yfinance_finance.py`
     - [ ] Sub-task: Define `FinanceDataError` class
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Implement Error Handling' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Implement Error Handling' (Protocol in workflow.md) [checkpoint: b7bf25c]
 
 ## Phase 3: Implement YahooFinanceProvider
 - [ ] Task: Write failing tests for `YahooFinanceProvider`
