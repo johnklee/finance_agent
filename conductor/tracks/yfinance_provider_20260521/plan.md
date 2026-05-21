@@ -13,7 +13,7 @@
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Implement Error Handling' (Protocol in workflow.md) [checkpoint: b7bf25c]
 
 ## Phase 3: Implement YahooFinanceProvider
-- [ ] Task: Write failing tests for `YahooFinanceProvider`
+- [x] Task: Write failing tests for `YahooFinanceProvider` d2c88dc
     - [ ] Sub-task: Create `tests/tools/test_yfinance_finance.py`
     - [ ] Sub-task: Write test for successful data retrieval (mocking `yfinance.Ticker`)
     - [ ] Sub-task: Write test for invalid symbol (mocking `yfinance.Ticker` to raise an exception or return empty data)
