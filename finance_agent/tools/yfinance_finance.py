@@ -12,13 +12,13 @@ class YahooFinanceProvider(BaseProvider):
         """Gets stock information according to given symbol.
 
         Args:
-          symbol: Stock symbol. e.g. `2330.TW`.
+         symbol: Stock symbol. e.g. `2330.TW`.
 
         Returns:
-          Company information as `StockInfo`.
+         Company information as `StockInfo`.
 
         Raises:
-          FinanceDataError: If there is an error fetching data or the symbol is invalid.
+         FinanceDataError: If there is an error fetching data or the symbol is invalid.
         """
         try:
             ticker = yf.Ticker(symbol)

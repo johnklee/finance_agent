@@ -11,6 +11,7 @@ This document summarizes key rules and best practices from the Google Python Sty
 - **Default Argument Values:** Do not use mutable objects (like `[]` or `{}`) as default values.
 - **True/False Evaluations:** Use implicit false (e.g., `if not my_list:`). Use `if foo is None:` to check for `None`.
 - **Type Annotations:** Strongly encouraged for all public APIs.
+- **Indentation:** Use 2 spaces per indentation level. Never use tabs. Do not use 4-space indentation.
 
 ## 2. Python Style Rules
 - **Line Length:** Maximum 80 characters.
