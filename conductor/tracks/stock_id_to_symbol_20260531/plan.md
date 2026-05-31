@@ -19,14 +19,14 @@
     - [x] Ensure all tests pass and verify coverage (>80%)
 - [x] Task: Conductor - User Manual Verification 'Phase 2: Implement CSV Cache Decorator' (Protocol in workflow.md)
 
-## Phase 3: Implement Stock ID to Symbol Conversion
-- [ ] Task: Create tests for `stock_id_to_symbol` function (Red Phase)
-    - [ ] Write unit tests in `tests/test_stock_info.py` for stock ID to symbol conversion
-    - [ ] Test resolving listed stock ID (e.g., `2330` -> `2330.TW`) and OTC stock ID (e.g., `8069` -> `8069.TWO`)
-    - [ ] Test raising `StockNotFoundError` for invalid stock IDs
-    - [ ] Verify the tests fail as expected
-- [ ] Task: Implement `stock_id_to_symbol` (Green Phase)
-    - [ ] Implement the `stock_id_to_symbol` function decorated with `@csv_cache` in `finance_agent/tools/stock_info.py`
-    - [ ] Use `twstock.codes` to resolve market type
-    - [ ] Ensure all tests pass and verify coverage (>80%)
-- [ ] Task: Conductor - User Manual Verification 'Phase 3: Implement Stock ID to Symbol Conversion' (Protocol in workflow.md)
+## Phase 3: Implement Stock ID to Symbol Conversion [checkpoint: cdbb0d2]
+- [x] Task: Create tests for `stock_id_to_symbol` function (Red Phase)
+    - [x] Write unit tests in `tests/test_stock_info.py` for stock ID to symbol conversion
+    - [x] Test resolving listed stock ID (e.g., `2330` -> `2330.TW`) and OTC stock ID (e.g., `8069` -> `8069.TWO`)
+    - [x] Test raising `StockNotFoundError` for invalid stock IDs
+    - [x] Verify the tests fail as expected
+- [x] Task: Implement `stock_id_to_symbol` (Green Phase)
+    - [x] Implement the `stock_id_to_symbol` function decorated with `@csv_cache` in `finance_agent/tools/stock_info.py`
+    - [x] Use `twstock.codes` to resolve market type
+    - [x] Ensure all tests pass and verify coverage (>80%)
+- [x] Task: Conductor - User Manual Verification 'Phase 3: Implement Stock ID to Symbol Conversion' (Protocol in workflow.md)
