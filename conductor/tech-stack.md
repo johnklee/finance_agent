@@ -6,6 +6,7 @@
 
 ## Data Acquisition & Analysis
 - **Financial Data Source:** `yfinance` (Yahoo Finance API wrapper)
+- **Taiwan Market Info:** `twstock` (Taiwan Stock database lookup)
 - **Data Manipulation:** `pandas`
 - **Data Visualization:** `matplotlib`
 - **Experimentation/Prototyping:** `jupyter`, `ipykernel`
