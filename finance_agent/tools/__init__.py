@@ -3,6 +3,11 @@
 import dataclasses
 from typing import Protocol, runtime_checkable
 
+from finance_agent.tools.stock_info import (
+    csv_cache as csv_cache,
+    stock_id_to_symbol as stock_id_to_symbol,
+)
+
 
 @dataclasses.dataclass(frozen=True, kw_only=True)
 class StockInfo:

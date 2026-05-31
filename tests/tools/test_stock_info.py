@@ -1,8 +1,9 @@
 import os
 from unittest.mock import patch
+import pytest
 
-# We import the decorator. Since the file does not exist yet, this should fail.
-from finance_agent.tools.stock_info import csv_cache
+from finance_agent.tools.exceptions import StockNotFoundError
+from finance_agent.tools.stock_info import csv_cache, stock_id_to_symbol
 
 
 def test_csv_cache_initialization_creates_file(tmp_path):
@@ -64,3 +65,27 @@ def test_csv_cache_persists_new_mappings_immediately(tmp_path):
         result2 = mock_func("2330")
         assert result2 == "2330.TW"
         assert len(calls) == 1
+
+
+def test_stock_id_to_symbol_listed(tmp_path):
+    cache_file = tmp_path / "test_cache.csv"
+    with patch.dict(os.environ, {"TW_STOCK_CACHED_CSV_PATH": str(cache_file)}):
+        # 2330 is 台積電 (listed/上市)
+        result = stock_id_to_symbol("2330")
+        assert result == "2330.TW"
+
+
+def test_stock_id_to_symbol_otc(tmp_path):
+    cache_file = tmp_path / "test_cache.csv"
+    with patch.dict(os.environ, {"TW_STOCK_CACHED_CSV_PATH": str(cache_file)}):
+        # 8069 is 元太 (OTC/上櫃)
+        result = stock_id_to_symbol("8069")
+        assert result == "8069.TWO"
+
+
+def test_stock_id_to_symbol_invalid(tmp_path):
+    cache_file = tmp_path / "test_cache.csv"
+    with patch.dict(os.environ, {"TW_STOCK_CACHED_CSV_PATH": str(cache_file)}):
+        with pytest.raises(StockNotFoundError) as exc_info:
+            stock_id_to_symbol("1111")
+        assert "1111" in str(exc_info.value)

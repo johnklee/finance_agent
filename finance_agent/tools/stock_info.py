@@ -2,6 +2,9 @@ import os
 import csv
 import functools
 from pathlib import Path
+import twstock
+
+from finance_agent.tools.exceptions import StockNotFoundError
 
 
 def get_cache_path() -> Path:
@@ -57,3 +60,40 @@ def csv_cache(func):
         return symbol
 
     return wrapper
+
+
+@csv_cache
+def stock_id_to_symbol(stock_id: str | int) -> str:
+    """
+    Convert a Taiwan stock ID into a Yahoo Finance symbol.
+
+    Examples:
+        >>> stock_id_to_symbol(2330)
+        '2330.TW'
+
+        >>> stock_id_to_symbol('6488')
+        '6488.TWO'
+
+    Args:
+        stock_id:
+            Taiwan stock ID.
+
+    Returns:
+        Yahoo Finance stock symbol.
+
+    Raises:
+        StockNotFoundError:
+            If the stock ID does not exist in twstock.
+    """
+    stock_id_str = str(stock_id)
+    try:
+        stock = twstock.codes[stock_id_str]
+    except KeyError as e:
+        raise StockNotFoundError(
+            f"Stock ID {stock_id_str} not found in twstock."
+        ) from e
+
+    if stock.market == "上市":
+        return f"{stock_id_str}.TW"
+    else:
+        return f"{stock_id_str}.TWO"
