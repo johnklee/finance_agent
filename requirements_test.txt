@@ -73,7 +73,7 @@ fqdn==1.5.1
 h11==0.16.0
     # via httpcore
 html5lib==1.1
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
 httpcore==1.0.9
     # via httpx
 httpx==0.28.1
@@ -90,7 +90,7 @@ iniconfig==2.3.0
     # via pytest
 ipykernel==7.2.0
     # via
-    #   finance-agent (pyproject.toml)
+    #   financial-stock-agent (pyproject.toml)
     #   jupyter
     #   jupyter-console
     #   jupyterlab
@@ -125,7 +125,7 @@ jsonschema==4.26.0
 jsonschema-specifications==2025.9.1
     # via jsonschema
 jupyter==1.1.1
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
 jupyter-client==8.9.0
     # via
     #   ipykernel
@@ -175,7 +175,7 @@ lark==1.3.1
     # via rfc3987-syntax
 lxml==6.1.1
     # via
-    #   finance-agent (pyproject.toml)
+    #   financial-stock-agent (pyproject.toml)
     #   pandas-datareader
     #   twstock
 markdown-it-py==4.2.0
@@ -185,7 +185,7 @@ markupsafe==3.0.3
     #   jinja2
     #   nbconvert
 matplotlib==3.10.9
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
 matplotlib-inline==0.2.2
     # via
     #   ipykernel
@@ -238,11 +238,11 @@ packaging==26.2
     #   pytest
 pandas==2.3.3
     # via
-    #   finance-agent (pyproject.toml)
+    #   financial-stock-agent (pyproject.toml)
     #   pandas-datareader
     #   yfinance
 pandas-datareader==0.10.0
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
 pandocfilters==1.5.1
     # via nbconvert
 parso==0.8.7
@@ -260,11 +260,11 @@ platformdirs==4.10.0
     #   virtualenv
     #   yfinance
 plotly==6.8.0
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
 pluggy==1.6.0
     # via pytest
 pre-commit==4.6.0
-    # via finance-agent (pyproject.toml:dev)
+    # via financial-stock-agent (pyproject.toml:dev)
 prometheus-client==0.25.0
     # via jupyter-server
 prompt-toolkit==3.0.52
@@ -296,7 +296,7 @@ pygments==2.20.0
 pyparsing==3.3.2
     # via matplotlib
 pytest==9.0.3
-    # via finance-agent (pyproject.toml:dev)
+    # via financial-stock-agent (pyproject.toml:dev)
 python-dateutil==2.9.0.post0
     # via
     #   arrow
@@ -349,7 +349,7 @@ rpds-py==2026.5.1
     #   jsonschema
     #   referencing
 ruff==0.15.16
-    # via finance-agent (pyproject.toml:dev)
+    # via financial-stock-agent (pyproject.toml:dev)
 send2trash==2.1.0
     # via jupyter-server
 setuptools==82.0.1
@@ -393,7 +393,7 @@ traitlets==5.15.1
     #   nbconvert
     #   nbformat
 twstock==1.5.1
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
 typing-extensions==4.15.0
     # via
     #   anyio
@@ -426,4 +426,4 @@ websockets==16.0
 widgetsnbextension==4.0.15
     # via ipywidgets
 yfinance==1.4.1
-    # via finance-agent (pyproject.toml)
+    # via financial-stock-agent (pyproject.toml)
