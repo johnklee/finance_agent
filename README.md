@@ -38,7 +38,7 @@ Below is the introduction of files in this repo:
   - Main Python package of the project.
   - Can be installed as a reusable package using:
     ```bash
-    pip install finance_agent
+    pip install financial-stock-agent
     ```
   - Contains the core implementation of the finance agent system.
 

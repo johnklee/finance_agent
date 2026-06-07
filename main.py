@@ -1,5 +1,5 @@
 def main():
-    print("Hello from finance-agent!")
+    print("Hello from financial-stock-agent!")
 
 
 Force error
