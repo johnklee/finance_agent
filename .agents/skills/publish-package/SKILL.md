@@ -1,3 +1,8 @@
+---
+name: publish-package
+description: Use this skill when the user wants to publish the `financial-stock-agent` package.
+---
+
 # Publish Python Package
 
 Use this skill when the user wants to publish the `financial-stock-agent` package.
