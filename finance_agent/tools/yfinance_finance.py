@@ -2,17 +2,18 @@
 
 import yfinance as yf
 from finance_agent.tools import BaseProvider, StockInfo
-from finance_agent.tools.exceptions import FinanceDataError
+from finance_agent.tools.exceptions import FinanceDataError, StockNotFoundError
+from finance_agent.tools.stock_info import stock_id_to_symbol
 
 
 class YahooFinanceProvider(BaseProvider):
     """Provider to get Finance data using yfinance."""
 
-    def get_stock_info(self, symbol: str) -> StockInfo:
+    def get_stock_info(self, symbol: str | int) -> StockInfo:
         """Gets stock information according to given symbol.
 
         Args:
-         symbol: Stock symbol. e.g. `2330.TW`.
+         symbol: Stock symbol. e.g. `2330.TW` or ID `2330`.
 
         Returns:
          Company information as `StockInfo`.
@@ -20,12 +21,19 @@ class YahooFinanceProvider(BaseProvider):
         Raises:
          FinanceDataError: If there is an error fetching data or the symbol is invalid.
         """
+        resolved_symbol = str(symbol)
         try:
-            ticker = yf.Ticker(symbol)
+            resolved_symbol = stock_id_to_symbol(resolved_symbol)
+        except StockNotFoundError:
+            # Fallback to querying yfinance directly with the original input string
+            pass
+
+        try:
+            ticker = yf.Ticker(resolved_symbol)
             info = ticker.info
 
             if not info:
-                raise FinanceDataError(f"No data found for symbol: {symbol}")
+                raise FinanceDataError(f"No data found for symbol: {resolved_symbol}")
 
             return StockInfo(
                 company_name=info.get("longName", ""),
@@ -35,4 +43,8 @@ class YahooFinanceProvider(BaseProvider):
                 market_cap=info.get("marketCap", 0.0),
             )
         except Exception as e:
-            raise FinanceDataError(f"Error fetching data for {symbol}: {e}") from e
+            if isinstance(e, FinanceDataError):
+                raise
+            raise FinanceDataError(
+                f"Error fetching data for {resolved_symbol}: {e}"
+            ) from e

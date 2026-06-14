@@ -52,3 +52,89 @@ def test_yahoo_finance_provider_invalid_symbol(mock_ticker):
         provider.get_stock_info("INVALID")
 
     assert "Invalid symbol" in str(exc_info.value)
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+@patch("finance_agent.tools.yfinance_finance.stock_id_to_symbol")
+def test_yahoo_finance_provider_stock_id_integer(mock_stock_id_to_symbol, mock_ticker):
+    # Arrange
+    mock_stock_id_to_symbol.return_value = "2330.TW"
+    mock_ticker_instance = MagicMock()
+    mock_ticker_instance.info = {
+        "longName": "TSMC",
+        "currency": "TWD",
+        "currentPrice": 600.0,
+        "previousClose": 590.0,
+        "marketCap": 15000000.0,
+    }
+    mock_ticker.return_value = mock_ticker_instance
+
+    provider = YahooFinanceProvider()
+
+    # Act
+    stock_info = provider.get_stock_info(2330)
+
+    # Assert
+    assert stock_info.company_name == "TSMC"
+    assert stock_info.current_price == 600.0
+    mock_stock_id_to_symbol.assert_called_once_with("2330")
+    mock_ticker.assert_called_once_with("2330.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+@patch("finance_agent.tools.yfinance_finance.stock_id_to_symbol")
+def test_yahoo_finance_provider_stock_id_string(mock_stock_id_to_symbol, mock_ticker):
+    # Arrange
+    mock_stock_id_to_symbol.return_value = "2330.TW"
+    mock_ticker_instance = MagicMock()
+    mock_ticker_instance.info = {
+        "longName": "TSMC",
+        "currency": "TWD",
+        "currentPrice": 600.0,
+        "previousClose": 590.0,
+        "marketCap": 15000000.0,
+    }
+    mock_ticker.return_value = mock_ticker_instance
+
+    provider = YahooFinanceProvider()
+
+    # Act
+    stock_info = provider.get_stock_info("2330")
+
+    # Assert
+    assert stock_info.company_name == "TSMC"
+    assert stock_info.current_price == 600.0
+    mock_stock_id_to_symbol.assert_called_once_with("2330")
+    mock_ticker.assert_called_once_with("2330.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+@patch("finance_agent.tools.yfinance_finance.stock_id_to_symbol")
+def test_yahoo_finance_provider_stock_id_not_found_fallback(
+    mock_stock_id_to_symbol, mock_ticker
+):
+    # Arrange
+    from finance_agent.tools.exceptions import StockNotFoundError
+
+    mock_stock_id_to_symbol.side_effect = StockNotFoundError("Not found")
+
+    mock_ticker_instance = MagicMock()
+    mock_ticker_instance.info = {
+        "longName": "Fallback Company",
+        "currency": "USD",
+        "currentPrice": 100.0,
+        "previousClose": 95.0,
+        "marketCap": 500000.0,
+    }
+    mock_ticker.return_value = mock_ticker_instance
+
+    provider = YahooFinanceProvider()
+
+    # Act
+    stock_info = provider.get_stock_info("2330.TW")
+
+    # Assert
+    assert stock_info.company_name == "Fallback Company"
+    assert stock_info.current_price == 100.0
+    mock_stock_id_to_symbol.assert_called_once_with("2330.TW")
+    mock_ticker.assert_called_once_with("2330.TW")
