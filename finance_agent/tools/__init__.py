@@ -32,11 +32,11 @@ class StockInfo:
 class BaseProvider(Protocol):
     """Provider base class to get Finance data."""
 
-    def get_stock_info(self, symbol: str) -> StockInfo:
+    def get_stock_info(self, symbol: str | int) -> StockInfo:
         """Gets stock information according to given sympol.
 
         Args:
-          symbol: Stock symtol. e.g. `2330.TW`.
+          symbol: Stock symbol. e.g. `2330.TW` or ID `2330`
 
         Returns:
           Compony information as `StockInfo`.
