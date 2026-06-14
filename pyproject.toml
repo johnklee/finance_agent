@@ -1,7 +1,8 @@
 [project]
 name = "financial-stock-agent"
-version = "0.1.0"
 description = "A agent to facilitate querying and processing finance data."
+version = "0.1.0"
+dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.12"
 license = {text = "MIT"}
@@ -56,3 +57,5 @@ exclude = [
     "/conductor",
 ]
 
+[tool.hatch.version]
+path = "finance_agent/__init__.py"
