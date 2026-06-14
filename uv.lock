@@ -505,7 +505,6 @@ wheels = [
 
 [[package]]
 name = "financial-stock-agent"
-version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "html5lib" },

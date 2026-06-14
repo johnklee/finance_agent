@@ -1,7 +1,7 @@
 [project]
 name = "financial-stock-agent"
 description = "A agent to facilitate querying and processing finance data."
-version = "0.1.0"
+version = "0.1.1"
 dynamic = ["version"]
 readme = "README.md"
 requires-python = ">=3.12"
