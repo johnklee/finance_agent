@@ -1,8 +1,0 @@
-{
-  "track_id": "dividend_yield_20260617",
-  "type": "feature",
-  "status": "new",
-  "created_at": "2026-06-17T11:13:00Z",
-  "updated_at": "2026-06-17T11:13:00Z",
-  "description": "Pull request from ticket #15: Support finding Stocks With Dividend Yield Over 5%"
-}
