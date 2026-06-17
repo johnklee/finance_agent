@@ -41,7 +41,8 @@ class YahooFinanceProvider(BaseProvider):
                 current_price=info.get("currentPrice", 0.0),
                 previous_close_price=info.get("previousClose", 0.0),
                 market_cap=info.get("marketCap", 0.0),
-                annual_dividend=info.get("dividendRate"),
+                annual_dividend=info.get("dividendRate")
+                or info.get("trailingAnnualDividendRate"),
             )
         except Exception as e:
             if isinstance(e, FinanceDataError):
