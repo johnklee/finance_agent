@@ -21,11 +21,19 @@ class StockInfo:
       market_cap: Market capitalization.
     """
 
+    annual_dividend: float | None = None
     company_name: str
     currency: str
     current_price: float
     previous_close_price: float
     market_cap: float
+
+    @property
+    def dividend_yield(self) -> float | None:
+        """Calculates the dividend yield as a percentage."""
+        if self.annual_dividend is None or not self.current_price:
+            return None
+        return (self.annual_dividend / self.current_price) * 100
 
 
 @runtime_checkable
