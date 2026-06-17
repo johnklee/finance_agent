@@ -1,6 +1,6 @@
 # Implementation Plan: Support finding Stocks With Dividend Yield Over 5%
 
-## Phase 1: Extend StockInfo and Implement Tests
+## Phase 1: Extend StockInfo and Implement Tests [checkpoint: f81891b]
 
 - [x] Task: TDD Red - Write failing tests for StockInfo changes [5c3050c]
     - [x] Add tests to `tests/tools/test_stock_info.py` that check instantiation with `annual_dividend` (both float and None)
@@ -12,13 +12,13 @@
     - [x] Run test suite to verify that all new tests now pass successfully
 - [x] Task: Code style and formatting checks
     - [x] Run `ruff` to ensure compliance with styling rules
-- [~] Task: Conductor - User Manual Verification 'Phase 1: Extend StockInfo and Implement Tests' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 1: Extend StockInfo and Implement Tests' (Protocol in workflow.md)
 
 ## Phase 2: Update YahooFinanceProvider and Integrate
 
-- [ ] Task: TDD Red - Write failing tests for YahooFinanceProvider
-    - [ ] Update `tests/tools/test_yfinance_finance.py` to assert that `annual_dividend` is present and correctly extracted from mock yfinance response
-    - [ ] Run the tests and confirm they fail
+- [~] Task: TDD Red - Write failing tests for YahooFinanceProvider
+    - [~] Update `tests/tools/test_yfinance_finance.py` to assert that `annual_dividend` is present and correctly extracted from mock yfinance response
+    - [~] Run the tests and confirm they fail
 - [ ] Task: TDD Green - Update YahooFinanceProvider logic
     - [ ] Update `get_stock_info` in `finance_agent/tools/yfinance_finance.py` to retrieve `dividendRate` and pass it to `StockInfo`
     - [ ] Run tests and verify they pass successfully
