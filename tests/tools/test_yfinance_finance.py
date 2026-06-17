@@ -15,6 +15,7 @@ def test_yahoo_finance_provider_success(mock_ticker):
         "currentPrice": 150.0,
         "previousClose": 145.0,
         "marketCap": 1000000.0,
+        "dividendRate": 7.5,
     }
     mock_ticker.return_value = mock_ticker_instance
 
@@ -30,6 +31,8 @@ def test_yahoo_finance_provider_success(mock_ticker):
     assert stock_info.current_price == 150.0
     assert stock_info.previous_close_price == 145.0
     assert stock_info.market_cap == 1000000.0
+    assert stock_info.annual_dividend == 7.5
+    assert stock_info.dividend_yield == 5.0
     mock_ticker.assert_called_once_with("TEST")
 
 
@@ -138,3 +141,27 @@ def test_yahoo_finance_provider_stock_id_not_found_fallback(
     assert stock_info.current_price == 100.0
     mock_stock_id_to_symbol.assert_called_once_with("2330.TW")
     mock_ticker.assert_called_once_with("2330.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_dividend_rate_fallback(mock_ticker):
+    # Arrange
+    mock_ticker_instance = MagicMock()
+    mock_ticker_instance.info = {
+        "longName": "Test Company",
+        "currency": "USD",
+        "currentPrice": 100.0,
+        "previousClose": 95.0,
+        "marketCap": 1000000.0,
+        "trailingAnnualDividendRate": 5.0,
+    }
+    mock_ticker.return_value = mock_ticker_instance
+
+    provider = YahooFinanceProvider()
+
+    # Act
+    stock_info = provider.get_stock_info("TEST")
+
+    # Assert
+    assert stock_info.annual_dividend == 5.0
+    assert stock_info.dividend_yield == 5.0
