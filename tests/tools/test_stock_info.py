@@ -89,3 +89,42 @@ def test_stock_id_to_symbol_invalid(tmp_path):
         with pytest.raises(StockNotFoundError) as exc_info:
             stock_id_to_symbol("1111")
         assert "1111" in str(exc_info.value)
+
+
+def test_stock_info_dividend_yield():
+    from finance_agent.tools import StockInfo
+
+    # Test case 1: normal calculation
+    stock = StockInfo(
+        company_name="Test Company",
+        currency="TWD",
+        current_price=100.0,
+        previous_close_price=95.0,
+        market_cap=1000000.0,
+        annual_dividend=5.0,
+    )
+    assert stock.annual_dividend == 5.0
+    assert stock.dividend_yield == 5.0
+
+    # Test case 2: annual_dividend is None
+    stock_no_div = StockInfo(
+        company_name="Test Company",
+        currency="TWD",
+        current_price=100.0,
+        previous_close_price=95.0,
+        market_cap=1000000.0,
+        annual_dividend=None,
+    )
+    assert stock_no_div.annual_dividend is None
+    assert stock_no_div.dividend_yield is None
+
+    # Test case 3: current_price is 0.0 (division by zero handling)
+    stock_zero_price = StockInfo(
+        company_name="Test Company",
+        currency="TWD",
+        current_price=0.0,
+        previous_close_price=95.0,
+        market_cap=1000000.0,
+        annual_dividend=5.0,
+    )
+    assert stock_zero_price.dividend_yield is None
