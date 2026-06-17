@@ -22,7 +22,7 @@
 - [x] Task: TDD Green - Update YahooFinanceProvider logic [8ae6dfa]
     - [x] Update `get_stock_info` in `finance_agent/tools/yfinance_finance.py` to retrieve `dividendRate` and pass it to `StockInfo`
     - [x] Run tests and verify they pass successfully
-- [~] Task: Quality and Coverage Verification
-    - [~] Verify test coverage is >80% for the changed modules
-    - [~] Run full pre-commit/formatting checks
-- [ ] Task: Conductor - User Manual Verification 'Phase 2: Update YahooFinanceProvider and Integrate' (Protocol in workflow.md)
+- [x] Task: Quality and Coverage Verification
+    - [x] Verify test coverage is >80% for the changed modules
+    - [x] Run full pre-commit/formatting checks
+- [~] Task: Conductor - User Manual Verification 'Phase 2: Update YahooFinanceProvider and Integrate' (Protocol in workflow.md)
