@@ -14,7 +14,7 @@
     - [x] Run `ruff` to ensure compliance with styling rules
 - [x] Task: Conductor - User Manual Verification 'Phase 1: Extend StockInfo and Implement Tests' (Protocol in workflow.md)
 
-## Phase 2: Update YahooFinanceProvider and Integrate
+## Phase 2: Update YahooFinanceProvider and Integrate [checkpoint: 023358a]
 
 - [x] Task: TDD Red - Write failing tests for YahooFinanceProvider [2afb388]
     - [x] Update `tests/tools/test_yfinance_finance.py` to assert that `annual_dividend` is present and correctly extracted from mock yfinance response
@@ -25,4 +25,4 @@
 - [x] Task: Quality and Coverage Verification
     - [x] Verify test coverage is >80% for the changed modules
     - [x] Run full pre-commit/formatting checks
-- [~] Task: Conductor - User Manual Verification 'Phase 2: Update YahooFinanceProvider and Integrate' (Protocol in workflow.md)
+- [x] Task: Conductor - User Manual Verification 'Phase 2: Update YahooFinanceProvider and Integrate' (Protocol in workflow.md)
