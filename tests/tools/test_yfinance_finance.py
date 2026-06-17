@@ -15,6 +15,7 @@ def test_yahoo_finance_provider_success(mock_ticker):
         "currentPrice": 150.0,
         "previousClose": 145.0,
         "marketCap": 1000000.0,
+        "dividendRate": 7.5,
     }
     mock_ticker.return_value = mock_ticker_instance
 
@@ -30,6 +31,8 @@ def test_yahoo_finance_provider_success(mock_ticker):
     assert stock_info.current_price == 150.0
     assert stock_info.previous_close_price == 145.0
     assert stock_info.market_cap == 1000000.0
+    assert stock_info.annual_dividend == 7.5
+    assert stock_info.dividend_yield == 5.0
     mock_ticker.assert_called_once_with("TEST")
 
 
