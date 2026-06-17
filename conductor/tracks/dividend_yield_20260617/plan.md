@@ -6,12 +6,12 @@
     - [x] Add tests to `tests/tools/test_stock_info.py` that check instantiation with `annual_dividend` (both float and None)
     - [x] Add tests for `dividend_yield` property calculation: normal calculation, division by zero, and None propagation
     - [x] Run the test suite and confirm these new tests fail as expected
-- [~] Task: TDD Green - Extend StockInfo dataclass
-    - [~] Add `annual_dividend: float | None` field to `StockInfo` in `finance_agent/tools/__init__.py`
-    - [~] Add `@property def dividend_yield(self) -> float | None` to calculate yield as percentage or return `None`
-    - [~] Run test suite to verify that all new tests now pass successfully
-- [ ] Task: Code style and formatting checks
-    - [ ] Run `ruff` to ensure compliance with styling rules
+- [x] Task: TDD Green - Extend StockInfo dataclass [821dd8b]
+    - [x] Add `annual_dividend: float | None` field to `StockInfo` in `finance_agent/tools/__init__.py`
+    - [x] Add `@property def dividend_yield(self) -> float | None` to calculate yield as percentage or return `None`
+    - [x] Run test suite to verify that all new tests now pass successfully
+- [~] Task: Code style and formatting checks
+    - [~] Run `ruff` to ensure compliance with styling rules
 - [ ] Task: Conductor - User Manual Verification 'Phase 1: Extend StockInfo and Implement Tests' (Protocol in workflow.md)
 
 ## Phase 2: Update YahooFinanceProvider and Integrate
