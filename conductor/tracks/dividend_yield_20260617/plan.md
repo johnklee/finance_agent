@@ -10,9 +10,9 @@
     - [x] Add `annual_dividend: float | None` field to `StockInfo` in `finance_agent/tools/__init__.py`
     - [x] Add `@property def dividend_yield(self) -> float | None` to calculate yield as percentage or return `None`
     - [x] Run test suite to verify that all new tests now pass successfully
-- [~] Task: Code style and formatting checks
-    - [~] Run `ruff` to ensure compliance with styling rules
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Extend StockInfo and Implement Tests' (Protocol in workflow.md)
+- [x] Task: Code style and formatting checks
+    - [x] Run `ruff` to ensure compliance with styling rules
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Extend StockInfo and Implement Tests' (Protocol in workflow.md)
 
 ## Phase 2: Update YahooFinanceProvider and Integrate
 
