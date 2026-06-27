@@ -2,12 +2,12 @@
 
 
 class FinanceDataError(Exception):
-    """Exception raised for errors in the finance data provider."""
+  """Exception raised for errors in the finance data provider."""
 
-    pass
+  pass
 
 
 class StockNotFoundError(KeyError, FinanceDataError):
-    """Exception raised when a stock ID is not found in twstock or the CSV cache."""
+  """Exception raised when a stock ID is not found in twstock or the CSV cache."""
 
-    pass
+  pass

@@ -59,3 +59,9 @@ exclude = [
 
 [tool.hatch.version]
 path = "finance_agent/__init__.py"
+
+[tool.ruff]
+indent-width = 2
+
+[tool.ruff.format]
+indent-style = "space"
