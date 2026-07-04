@@ -50,3 +50,18 @@ class BaseProvider(Protocol):
       Compony information as `StockInfo`.
     """
     pass
+
+  def get_latest_roe(self, symbol: str | int) -> float:
+    """Gets latest ROE of given stock sympol/ID.
+
+    Args:
+      symbol: Stock symbol/ID. e.g. `2330.TW` or ID `2330`
+
+    Returns:
+      Latest ROE as a percentage.
+
+      For example:
+      - ``21.53`` represents **21.53%**
+      - ``8.41`` represents **8.41%**
+    """
+    pass
