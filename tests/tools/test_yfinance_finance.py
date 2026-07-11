@@ -242,3 +242,108 @@ def test_yahoo_finance_provider_get_latest_roe_empty_info(mock_ticker):
     provider.get_latest_roe("TEST")
 
   assert "No data found for symbol: TEST" in str(exc_info.value)
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_beta_success(mock_download):
+  # Arrange
+  import pandas as pd
+
+  dates = pd.date_range("2026-01-01", periods=5)
+  data = {
+    ("Close", "TEST"): [10.0, 11.0, 12.0, 11.0, 13.0],
+    ("Close", "^TWII"): [100.0, 101.0, 102.0, 101.0, 103.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+
+  # Act
+  beta = provider.get_beta("TEST", "^TWII", period="1mo")
+
+  # Assert
+  assert isinstance(beta, float)
+  assert beta == pytest.approx(8.976885215675251)
+  mock_download.assert_called_once_with(
+    tickers=["TEST", "^TWII"],
+    period="1mo",
+    auto_adjust=True,
+    progress=False,
+  )
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+@patch("finance_agent.tools.yfinance_finance.stock_id_to_symbol")
+def test_get_beta_with_id_resolution(mock_stock_id_to_symbol, mock_download):
+  # Arrange
+  import pandas as pd
+
+  mock_stock_id_to_symbol.return_value = "2330.TW"
+  dates = pd.date_range("2026-01-01", periods=5)
+  data = {
+    ("Close", "2330.TW"): [10.0, 11.0, 12.0, 11.0, 13.0],
+    ("Close", "^TWII"): [100.0, 101.0, 102.0, 101.0, 103.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+
+  # Act
+  beta = provider.get_beta(2330, "^TWII")
+
+  # Assert
+  assert beta == pytest.approx(8.976885215675251)
+  mock_stock_id_to_symbol.assert_called_once_with("2330")
+  mock_download.assert_called_once_with(
+    tickers=["2330.TW", "^TWII"],
+    period="5y",
+    auto_adjust=True,
+    progress=False,
+  )
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_beta_empty_prices(mock_download):
+  # Arrange
+  import pandas as pd
+
+  mock_download.return_value = pd.DataFrame()
+
+  provider = YahooFinanceProvider()
+
+  # Act & Assert
+  with pytest.raises(FinanceDataError) as exc_info:
+    provider.get_beta("TEST")
+
+  assert "Unable to retrieve sufficient historical price data" in str(exc_info.value)
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_alpha_success(mock_download):
+  # Arrange
+  import pandas as pd
+
+  dates = pd.date_range("2026-01-01", periods=5)
+  # Design return data to give steady alpha
+  data = {
+    ("Close", "TEST"): [10.0, 10.1, 10.2, 10.3, 10.4],
+    ("Close", "^TWII"): [100.0, 100.5, 101.0, 101.5, 102.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+
+  # Act
+  alpha = provider.get_alpha("TEST", "^TWII", risk_free_rate=0.015, period="1mo")
+
+  # Assert
+  assert isinstance(alpha, float)
+  mock_download.assert_called_once_with(
+    tickers=["TEST", "^TWII"],
+    period="1mo",
+    auto_adjust=True,
+    progress=False,
+  )
