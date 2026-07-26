@@ -18,6 +18,7 @@ classifiers = [
 ]
 keywords = ["finance", "agent", "stock-market", "taiwan", "yfinance"]
 dependencies = [
+    "google-adk>=2.5.0",
     "html5lib>=1.1",
     "ipykernel>=7.2.0",
     "jupyter>=1.1.1",

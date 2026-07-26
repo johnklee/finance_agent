@@ -219,3 +219,6 @@ __marimo__/
 
 # Project artifacts.
 tw_stock_info_listed.csv
+
+# Agent artifacts.
+finance_agent/agent/.adk/session.db

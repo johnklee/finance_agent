@@ -128,6 +128,77 @@ Planned future support:
 
 ---
 
+# Usages
+
+The `finance_agent` package exposes a Google Agent Development Kit (ADK) `root_agent` that can be launched using the `adk` CLI in three modes:
+
+## 1. Interactive CLI (`adk run`)
+
+Run the agent interactively in your terminal or execute a single query:
+
+```bash
+# Enter interactive chat mode
+adk run finance_agent/agent
+
+# Run a single prompt directly
+adk run finance_agent/agent "Get stock info of 2330.TW"
+```
+
+> **Tip:** You can suppress framework `UserWarning` messages by setting `PYTHONWARNINGS="ignore::UserWarning"`:
+> ```bash
+> PYTHONWARNINGS="ignore::UserWarning" adk run finance_agent/agent
+> ```
+
+---
+
+## 2. Web Interface (`adk web`)
+
+Launch the FastAPI server with a built-in Web UI:
+
+```bash
+adk web finance_agent
+```
+
+By default, the Web UI is available at `http://127.0.0.1:8000`.
+
+---
+
+## 3. REST API Server (`adk api_server`)
+
+Launch the REST API server on a custom port (e.g., port `8888`):
+
+```bash
+adk api_server finance_agent --port 8888
+```
+
+### Interacting with the API Server via `curl`
+
+#### Step 1: Create a Session
+```bash
+curl -X POST "http://127.0.0.1:8888/apps/agent/users/user1/sessions/session1" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+#### Step 2: Send a Prompt to `/run`
+```bash
+curl -X POST "http://127.0.0.1:8888/run" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "appName": "agent",
+    "userId": "user1",
+    "sessionId": "session1",
+    "newMessage": {
+      "role": "user",
+      "parts": [
+        { "text": "Get the stock info of 2330.TW." }
+      ]
+    }
+  }'
+```
+
+---
+
 # Tech Stack
 
 - Python
