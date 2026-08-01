@@ -36,12 +36,30 @@ class YahooFinanceProvider(BaseProvider):
       if not info:
         raise FinanceDataError(f"No data found for symbol: {resolved_symbol}")
 
+      company_name = info.get("longName", "") or info.get("shortName", "")
+      currency = info.get("currency", "TWD")
+      current_price = info.get("currentPrice", 0.0) or info.get(
+        "regularMarketPrice", 0.0
+      )
+      previous_close_price = info.get("previousClose", 0.0) or info.get(
+        "regularMarketPreviousClose", 0.0
+      )
+      market_cap = info.get("marketCap", 0.0)
+
+      if (
+        not company_name
+        and current_price == 0.0
+        and previous_close_price == 0.0
+        and market_cap == 0.0
+      ):
+        raise FinanceDataError(f"No data found for symbol: {resolved_symbol}")
+
       return StockInfo(
-        company_name=info.get("longName", ""),
-        currency=info.get("currency", "TWD"),
-        current_price=info.get("currentPrice", 0.0),
-        previous_close_price=info.get("previousClose", 0.0),
-        market_cap=info.get("marketCap", 0.0),
+        company_name=company_name,
+        currency=currency,
+        current_price=current_price,
+        previous_close_price=previous_close_price,
+        market_cap=market_cap,
         annual_dividend=info.get("dividendRate")
         or info.get("trailingAnnualDividendRate"),
       )
