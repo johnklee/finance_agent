@@ -1,4 +1,4 @@
-.PHONY: init test lint dist
+.PHONY: init test lint dist sync_requirements
 
 all: init test lint
 
@@ -23,6 +23,10 @@ output_requirements:
 
 output_test_requirements:
 	pipenv requirements --dev > requirements_test.txt
+
+sync_requirements:
+	uv pip compile pyproject.toml -o requirements.txt
+	uv pip compile pyproject.toml --group dev -o requirements_test.txt
 
 upload: dist
 	twine upload --skip-existing dist/*

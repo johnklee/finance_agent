@@ -14,35 +14,41 @@ warnings.filterwarnings("ignore", category=UserWarning, message=r".*\[EXPERIMENT
 _provider: BaseProvider = YahooFinanceProvider()
 
 
-def get_stock_info(symbol: str | int) -> StockInfo:
+def get_stock_info(symbol: str | int) -> StockInfo | str:
   """Gets stock information including price, market cap, and dividend yield.
 
   Args:
     symbol: Stock symbol or Taiwan stock ID (e.g., '2330.TW' or 2330).
 
   Returns:
-    StockInfo dataclass containing company details.
+    StockInfo dataclass containing company details, or an error message string if an error occurs.
   """
-  return _provider.get_stock_info(symbol)
+  try:
+    return _provider.get_stock_info(symbol)
+  except Exception as e:
+    return f"Error fetching stock info for symbol '{symbol}': {e}"
 
 
-def get_latest_roe(symbol: str | int) -> float:
+def get_latest_roe(symbol: str | int) -> float | str:
   """Gets the latest Return on Equity (ROE) percentage for a given stock.
 
   Args:
     symbol: Stock symbol or Taiwan stock ID (e.g., '2330.TW' or 2330).
 
   Returns:
-    Latest ROE as a percentage float.
+    Latest ROE as a percentage float, or an error message string if an error occurs.
   """
-  return _provider.get_latest_roe(symbol)
+  try:
+    return _provider.get_latest_roe(symbol)
+  except Exception as e:
+    return f"Error fetching ROE for symbol '{symbol}': {e}"
 
 
 def get_beta(
   symbol: str | int,
   benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
   period: str = "5y",
-) -> float:
+) -> float | str:
   """Calculates a stock's beta relative to a benchmark index.
 
   Args:
@@ -51,9 +57,12 @@ def get_beta(
     period: Historical period (e.g., '1y', '5y').
 
   Returns:
-    Calculated beta as a float.
+    Calculated beta as a float, or an error message string if an error occurs.
   """
-  return _provider.get_beta(symbol, benchmark_symbol=benchmark_symbol, period=period)
+  try:
+    return _provider.get_beta(symbol, benchmark_symbol=benchmark_symbol, period=period)
+  except Exception as e:
+    return f"Error calculating beta for symbol '{symbol}': {e}"
 
 
 def get_alpha(
@@ -61,7 +70,7 @@ def get_alpha(
   benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
   risk_free_rate: float = 0.015,
   period: str = "5y",
-) -> float:
+) -> float | str:
   """Calculates CAPM Alpha for a stock relative to a benchmark index.
 
   Args:
@@ -71,14 +80,17 @@ def get_alpha(
     period: Historical period (e.g., '1y', '5y').
 
   Returns:
-    Annualized alpha as a percentage float.
+    Annualized alpha as a percentage float, or an error message string if an error occurs.
   """
-  return _provider.get_alpha(
-    symbol,
-    benchmark_symbol=benchmark_symbol,
-    risk_free_rate=risk_free_rate,
-    period=period,
-  )
+  try:
+    return _provider.get_alpha(
+      symbol,
+      benchmark_symbol=benchmark_symbol,
+      risk_free_rate=risk_free_rate,
+      period=period,
+    )
+  except Exception as e:
+    return f"Error calculating alpha for symbol '{symbol}': {e}"
 
 
 # Expose root_agent for ADK CLI (adk run / adk web)
@@ -108,33 +120,45 @@ class FinanceAgent:
       provider if provider is not None else YahooFinanceProvider()
     )
 
-    def _get_stock_info(symbol: str | int) -> StockInfo:
-      return self.provider.get_stock_info(symbol)
+    def _get_stock_info(symbol: str | int) -> StockInfo | str:
+      try:
+        return self.provider.get_stock_info(symbol)
+      except Exception as e:
+        return f"Error fetching stock info for symbol '{symbol}': {e}"
 
-    def _get_latest_roe(symbol: str | int) -> float:
-      return self.provider.get_latest_roe(symbol)
+    def _get_latest_roe(symbol: str | int) -> float | str:
+      try:
+        return self.provider.get_latest_roe(symbol)
+      except Exception as e:
+        return f"Error fetching ROE for symbol '{symbol}': {e}"
 
     def _get_beta(
       symbol: str | int,
       benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
       period: str = "5y",
-    ) -> float:
-      return self.provider.get_beta(
-        symbol, benchmark_symbol=benchmark_symbol, period=period
-      )
+    ) -> float | str:
+      try:
+        return self.provider.get_beta(
+          symbol, benchmark_symbol=benchmark_symbol, period=period
+        )
+      except Exception as e:
+        return f"Error calculating beta for symbol '{symbol}': {e}"
 
     def _get_alpha(
       symbol: str | int,
       benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
       risk_free_rate: float = 0.015,
       period: str = "5y",
-    ) -> float:
-      return self.provider.get_alpha(
-        symbol,
-        benchmark_symbol=benchmark_symbol,
-        risk_free_rate=risk_free_rate,
-        period=period,
-      )
+    ) -> float | str:
+      try:
+        return self.provider.get_alpha(
+          symbol,
+          benchmark_symbol=benchmark_symbol,
+          risk_free_rate=risk_free_rate,
+          period=period,
+        )
+      except Exception as e:
+        return f"Error calculating alpha for symbol '{symbol}': {e}"
 
     self.root_agent = Agent(
       name="finance_agent",

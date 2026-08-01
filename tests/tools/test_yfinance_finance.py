@@ -58,6 +58,22 @@ def test_yahoo_finance_provider_invalid_symbol(mock_ticker):
 
 
 @patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_stock_not_exist(mock_ticker):
+  # Arrange
+  mock_ticker_instance = MagicMock()
+  mock_ticker_instance.info = {"trailingPegRatio": None}
+  mock_ticker.return_value = mock_ticker_instance
+
+  provider = YahooFinanceProvider()
+
+  # Act & Assert
+  with pytest.raises(FinanceDataError) as exc_info:
+    provider.get_stock_info("999999999")
+
+  assert "No data found for symbol: 999999999" in str(exc_info.value)
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
 @patch("finance_agent.tools.yfinance_finance.stock_id_to_symbol")
 def test_yahoo_finance_provider_stock_id_integer(mock_stock_id_to_symbol, mock_ticker):
   # Arrange

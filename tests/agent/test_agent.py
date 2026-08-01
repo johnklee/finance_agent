@@ -85,3 +85,67 @@ def test_finance_agent_class():
   assert agent.root_agent is not None
   assert isinstance(agent.root_agent, Agent)
   assert agent.root_agent.model == "gemini-3.5-flash"
+
+
+@patch("finance_agent.agent._provider.get_stock_info")
+def test_get_stock_info_tool_exception(mock_get_info):
+  mock_get_info.side_effect = Exception("Not found")
+
+  result = get_stock_info("INVALID")
+
+  assert isinstance(result, str)
+  assert "Error fetching stock info for symbol 'INVALID': Not found" in result
+
+
+@patch("finance_agent.agent._provider.get_latest_roe")
+def test_get_latest_roe_tool_exception(mock_get_roe):
+  mock_get_roe.side_effect = Exception("ROE unavailable")
+
+  result = get_latest_roe("INVALID")
+
+  assert isinstance(result, str)
+  assert "Error fetching ROE for symbol 'INVALID': ROE unavailable" in result
+
+
+@patch("finance_agent.agent._provider.get_beta")
+def test_get_beta_tool_exception(mock_get_beta):
+  mock_get_beta.side_effect = Exception("Insufficient data")
+
+  result = get_beta("INVALID")
+
+  assert isinstance(result, str)
+  assert "Error calculating beta for symbol 'INVALID': Insufficient data" in result
+
+
+@patch("finance_agent.agent._provider.get_alpha")
+def test_get_alpha_tool_exception(mock_get_alpha):
+  mock_get_alpha.side_effect = Exception("Insufficient data")
+
+  result = get_alpha("INVALID")
+
+  assert isinstance(result, str)
+  assert "Error calculating alpha for symbol 'INVALID': Insufficient data" in result
+
+
+def test_finance_agent_class_exception_handling():
+  mock_provider = MagicMock()
+  mock_provider.get_stock_info.side_effect = Exception("Stock error")
+  mock_provider.get_latest_roe.side_effect = Exception("ROE error")
+  mock_provider.get_beta.side_effect = Exception("Beta error")
+  mock_provider.get_alpha.side_effect = Exception("Alpha error")
+
+  agent = FinanceAgent(provider=mock_provider)
+  tools = {tool.__name__: tool for tool in agent.root_agent.tools}
+
+  assert "Error fetching stock info for symbol '9999': Stock error" in tools[
+    "_get_stock_info"
+  ]("9999")
+  assert "Error fetching ROE for symbol '9999': ROE error" in tools["_get_latest_roe"](
+    "9999"
+  )
+  assert "Error calculating beta for symbol '9999': Beta error" in tools["_get_beta"](
+    "9999"
+  )
+  assert "Error calculating alpha for symbol '9999': Alpha error" in tools[
+    "_get_alpha"
+  ]("9999")
