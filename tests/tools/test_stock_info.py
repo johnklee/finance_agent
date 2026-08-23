@@ -128,3 +128,99 @@ def test_stock_info_dividend_yield():
     annual_dividend=5.0,
   )
   assert stock_zero_price.dividend_yield is None
+
+
+def test_symbol_info():
+  from finance_agent.tools import SymbolInfo
+
+  info = SymbolInfo(symbol="2330.TW", industrial_group="半導體業")
+  assert info.symbol == "2330.TW"
+  assert info.industrial_group == "半導體業"
+
+
+def test_cache_decorator(tmp_path):
+  from datetime import timedelta
+  import pandas as pd
+  from finance_agent.tools import SymbolInfo, cache
+
+  cache_file = tmp_path / "test_symbol_cache.csv"
+
+  def loader(df: pd.DataFrame) -> list[SymbolInfo]:
+    return [
+      SymbolInfo(
+        symbol=str(row["symbol"]),
+        industrial_group=str(row["industrial_group"]),
+      )
+      for _, row in df.iterrows()
+    ]
+
+  def dumper(symbols: list[SymbolInfo]) -> pd.DataFrame:
+    import dataclasses
+
+    return pd.DataFrame([dataclasses.asdict(s) for s in symbols])
+
+  calls = []
+
+  @cache(
+    life_time=timedelta(days=1),
+    cache_file=cache_file,
+    loader=loader,
+    dumper=dumper,
+  )
+  def mock_get_symbols() -> list[SymbolInfo]:
+    calls.append(1)
+    return [SymbolInfo(symbol="1101.TW", industrial_group="水泥工業")]
+
+  # First call executes function and writes CSV
+  res1 = mock_get_symbols()
+  assert len(res1) == 1
+  assert res1[0].symbol == "1101.TW"
+  assert len(calls) == 1
+  assert cache_file.exists()
+
+  # Second call reads from CSV cache without executing function
+  res2 = mock_get_symbols()
+  assert len(res2) == 1
+  assert res2[0].symbol == "1101.TW"
+  assert len(calls) == 1
+
+  # Force refresh executes function again
+  res3 = mock_get_symbols(force_refresh=True)
+  assert len(res3) == 1
+  assert len(calls) == 2
+
+
+def test_get_twse_symbols(tmp_path):
+  from unittest.mock import MagicMock
+  from finance_agent.tools import get_twse_symbols
+
+  sample_html = """
+  <html>
+    <body>
+      <table>
+        <tr><th>Col1</th><th>Col2</th><th>Col3</th><th>Col4</th><th>Col5</th></tr>
+        <tr><td>1101 台泥</td><td>TW0001101004</td><td>2062/02/09</td><td>股票</td><td>水泥工業</td></tr>
+        <tr><td>2330 台積電</td><td>TW0002330008</td><td>1994/09/05</td><td>股票</td><td>半導體業</td></tr>
+        <tr><td>0050 元大台灣50</td><td>TW0000050004</td><td>2003/06/30</td><td>ETF</td><td>ETF</td></tr>
+      </table>
+    </body>
+  </html>
+  """
+
+  mock_response = MagicMock()
+  mock_response.content = sample_html.encode("big5")
+  mock_response.raise_for_status.return_value = None
+
+  with patch("requests.get", return_value=mock_response):
+    with patch("finance_agent.tools.stock_info.cache") as mock_cache:
+      # Bypass cache decorator for direct unit testing of get_twse_symbols logic
+      mock_cache.side_effect = lambda **kwargs: lambda func: func
+      symbols = get_twse_symbols()
+
+      assert len(symbols) == 3
+      assert symbols[0].symbol == "1101.TW"
+      assert symbols[0].industrial_group == "水泥工業"
+      assert symbols[1].symbol == "2330.TW"
+      assert symbols[1].industrial_group == "半導體業"
+      assert symbols[2].symbol == "0050.TW"
+      assert symbols[2].industrial_group == "ETF"
