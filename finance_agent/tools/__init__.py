@@ -4,13 +4,16 @@ import dataclasses
 from typing import Protocol, runtime_checkable
 
 from finance_agent import constants
+from finance_agent.tools import stock_info
 from finance_agent.tools.stock_info import (
-  SymbolInfo as SymbolInfo,
   cache as cache,
   csv_cache as csv_cache,
   get_twse_symbols as get_twse_symbols,
   stock_id_to_symbol as stock_id_to_symbol,
 )
+
+# Types
+SymbolInfo = stock_info.SymbolInfo
 
 
 TW_BENCHMARK_SYMBOL = constants.TW_BENCHMARK_SYMBOL
@@ -47,22 +50,22 @@ class StockInfo:
 class BaseProvider(Protocol):
   """Provider base class to get Finance data."""
 
-  def get_stock_info(self, symbol: str | int) -> StockInfo:
+  def get_stock_info(self, symbol: str | int | SymbolInfo) -> StockInfo:
     """Gets stock information according to given sympol.
 
     Args:
-      symbol: Stock symbol. e.g. `2330.TW` or ID `2330`
+      symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
 
     Returns:
       Compony information as `StockInfo`.
     """
     pass
 
-  def get_latest_roe(self, symbol: str | int) -> float:
+  def get_latest_roe(self, symbol: str | int | SymbolInfo) -> float:
     """Gets latest ROE of given stock sympol/ID.
 
     Args:
-      symbol: Stock symbol/ID. e.g. `2330.TW` or ID `2330`
+      symbol: Stock symbol/ID. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
 
     Returns:
       Latest ROE as a percentage.
@@ -75,12 +78,11 @@ class BaseProvider(Protocol):
 
   def get_beta(
     self,
-    symbol: str | int,
+    symbol: str | int | SymbolInfo,
     benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
     period: str = "5y",
   ) -> float:
-    """
-    Calculate a stock's beta relative to a benchmark index.
+    """Calculate a stock's beta relative to a benchmark index.
 
     Beta measures how sensitive a stock's returns are to benchmark returns:
     - beta = 1.0: moves roughly in line with the benchmark
@@ -89,7 +91,7 @@ class BaseProvider(Protocol):
     - beta < 0.0: tends to move in the opposite direction
 
     Args:
-      symbol: Stock symbol. e.g. `2330.TW` or ID `2330`
+      symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
       benchmark_symbol: Benchmark ticker, default is "^GSPC" for S&P 500.
       period: Historical-data period accepted by yfinance, for example
           "1y", "2y", "5y", or "10y".
@@ -104,19 +106,18 @@ class BaseProvider(Protocol):
 
   def get_alpha(
     self,
-    symbol: str | int,
+    symbol: str | int | SymbolInfo,
     benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
     risk_free_rate: float = 0.015,
     period: str = "5y",
   ) -> float:
-    """
-    Calculate CAPM Alpha.
+    """Calculate CAPM Alpha.
 
     Formula:
       alpha = Ri - [Rf + beta * (Rm - Rf)]
 
     Args:
-      symbol: Stock symbol. e.g. `2330.TW` or ID `2330`
+      symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
       benchmark_symbol: Market index (e.g. "^TWII", "^GSPC")
       risk_free_rate: Annual risk-free rate in decimal form.
         Example: 0.015 = 1.5%, 0.04  = 4%

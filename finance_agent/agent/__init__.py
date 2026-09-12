@@ -3,7 +3,12 @@
 import warnings
 
 from google.adk.agents import Agent
-from finance_agent.tools import BaseProvider, StockInfo, TW_BENCHMARK_SYMBOL
+from finance_agent.tools import (
+  BaseProvider,
+  StockInfo,
+  SymbolInfo,
+  TW_BENCHMARK_SYMBOL,
+)
 from finance_agent.tools.yfinance_finance import YahooFinanceProvider
 
 # Suppress experimental UserWarnings emitted by ADK framework
@@ -14,11 +19,11 @@ warnings.filterwarnings("ignore", category=UserWarning, message=r".*\[EXPERIMENT
 _provider: BaseProvider = YahooFinanceProvider()
 
 
-def get_stock_info(symbol: str | int) -> StockInfo | str:
+def get_stock_info(symbol: str | int | SymbolInfo) -> StockInfo | str:
   """Gets stock information including price, market cap, and dividend yield.
 
   Args:
-    symbol: Stock symbol or Taiwan stock ID (e.g., '2330.TW' or 2330).
+    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
 
   Returns:
     StockInfo dataclass containing company details, or an error message string if an error occurs.
@@ -29,11 +34,11 @@ def get_stock_info(symbol: str | int) -> StockInfo | str:
     return f"Error fetching stock info for symbol '{symbol}': {e}"
 
 
-def get_latest_roe(symbol: str | int) -> float | str:
+def get_latest_roe(symbol: str | int | SymbolInfo) -> float | str:
   """Gets the latest Return on Equity (ROE) percentage for a given stock.
 
   Args:
-    symbol: Stock symbol or Taiwan stock ID (e.g., '2330.TW' or 2330).
+    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
 
   Returns:
     Latest ROE as a percentage float, or an error message string if an error occurs.
@@ -45,14 +50,14 @@ def get_latest_roe(symbol: str | int) -> float | str:
 
 
 def get_beta(
-  symbol: str | int,
+  symbol: str | int | SymbolInfo,
   benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
   period: str = "5y",
 ) -> float | str:
   """Calculates a stock's beta relative to a benchmark index.
 
   Args:
-    symbol: Stock symbol or Taiwan stock ID (e.g., '2330.TW' or 2330).
+    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
     benchmark_symbol: Benchmark index symbol (default: ^TWII).
     period: Historical period (e.g., '1y', '5y').
 
@@ -66,7 +71,7 @@ def get_beta(
 
 
 def get_alpha(
-  symbol: str | int,
+  symbol: str | int | SymbolInfo,
   benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
   risk_free_rate: float = 0.015,
   period: str = "5y",
@@ -74,10 +79,10 @@ def get_alpha(
   """Calculates CAPM Alpha for a stock relative to a benchmark index.
 
   Args:
-    symbol: Stock symbol or Taiwan stock ID (e.g., '2330.TW' or 2330).
-    benchmark_symbol: Benchmark index symbol (default: ^TWII).
-    risk_free_rate: Annual risk-free rate decimal (default: 0.015).
-    period: Historical period (e.g., '1y', '5y').
+    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
+    benchmark_symbol: Market index symbol (default: ^TWII).
+    risk_free_rate: Annual risk-free rate in decimal form (default: 0.015).
+    period: Historical period used to estimate returns and beta (default: '5y').
 
   Returns:
     Annualized alpha as a percentage float, or an error message string if an error occurs.

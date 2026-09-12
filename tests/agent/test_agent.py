@@ -11,7 +11,7 @@ from finance_agent.agent import (
   get_stock_info,
   root_agent,
 )
-from finance_agent.tools import StockInfo
+from finance_agent.tools import StockInfo, SymbolInfo
 
 
 def test_root_agent_definition():
@@ -76,6 +76,42 @@ def test_get_alpha_tool(mock_get_alpha):
   assert result == 3.5
   mock_get_alpha.assert_called_once_with(
     "2330", benchmark_symbol="^TWII", risk_free_rate=0.02, period="5y"
+  )
+
+
+@patch("finance_agent.agent._provider.get_stock_info")
+@patch("finance_agent.agent._provider.get_latest_roe")
+@patch("finance_agent.agent._provider.get_beta")
+@patch("finance_agent.agent._provider.get_alpha")
+def test_agent_tools_with_symbol_info(
+  mock_get_alpha, mock_get_beta, mock_get_roe, mock_get_info
+):
+  symbol_info = SymbolInfo(symbol="2330.TW", industrial_group="半導體業")
+  mock_get_info.return_value = StockInfo(
+    company_name="TSMC",
+    currency="TWD",
+    current_price=600.0,
+    previous_close_price=590.0,
+    market_cap=15000000.0,
+  )
+  mock_get_roe.return_value = 25.5
+  mock_get_beta.return_value = 1.2
+  mock_get_alpha.return_value = 3.5
+
+  assert get_stock_info(symbol_info).company_name == "TSMC"
+  mock_get_info.assert_called_once_with(symbol_info)
+
+  assert get_latest_roe(symbol_info) == 25.5
+  mock_get_roe.assert_called_once_with(symbol_info)
+
+  assert get_beta(symbol_info) == 1.2
+  mock_get_beta.assert_called_once_with(
+    symbol_info, benchmark_symbol="^TWII", period="5y"
+  )
+
+  assert get_alpha(symbol_info) == 3.5
+  mock_get_alpha.assert_called_once_with(
+    symbol_info, benchmark_symbol="^TWII", risk_free_rate=0.015, period="5y"
   )
 
 

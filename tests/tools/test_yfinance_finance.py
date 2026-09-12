@@ -2,7 +2,7 @@ import pytest
 from unittest.mock import patch, MagicMock
 from finance_agent.tools.yfinance_finance import YahooFinanceProvider
 from finance_agent.tools.exceptions import FinanceDataError
-from finance_agent.tools import StockInfo
+from finance_agent.tools import StockInfo, SymbolInfo
 
 
 @patch("finance_agent.tools.yfinance_finance.yf.Ticker")
@@ -359,6 +359,109 @@ def test_get_alpha_success(mock_download):
   assert isinstance(alpha, float)
   mock_download.assert_called_once_with(
     tickers=["TEST", "^TWII"],
+    period="1mo",
+    auto_adjust=True,
+    progress=False,
+  )
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_symbol_info(mock_ticker):
+  # Arrange
+  mock_ticker_instance = MagicMock()
+  mock_ticker_instance.info = {
+    "longName": "TSMC",
+    "currency": "TWD",
+    "currentPrice": 600.0,
+    "previousClose": 590.0,
+    "marketCap": 15000000.0,
+  }
+  mock_ticker.return_value = mock_ticker_instance
+
+  provider = YahooFinanceProvider()
+  symbol_info = SymbolInfo(symbol="2330.TW", industrial_group="半導體業")
+
+  # Act
+  stock_info = provider.get_stock_info(symbol_info)
+
+  # Assert
+  assert stock_info.company_name == "TSMC"
+  assert stock_info.current_price == 600.0
+  mock_ticker.assert_called_once_with("2330.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_get_latest_roe_with_symbol_info(mock_ticker):
+  # Arrange
+  mock_ticker_instance = MagicMock()
+  mock_ticker_instance.info = {
+    "returnOnEquity": 0.28,
+  }
+  mock_ticker.return_value = mock_ticker_instance
+
+  provider = YahooFinanceProvider()
+  symbol_info = SymbolInfo(symbol="2330.TW", industrial_group="半導體業")
+
+  # Act
+  roe = provider.get_latest_roe(symbol_info)
+
+  # Assert
+  assert roe == pytest.approx(28.0)
+  mock_ticker.assert_called_once_with("2330.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_beta_with_symbol_info(mock_download):
+  # Arrange
+  import pandas as pd
+
+  dates = pd.date_range("2026-01-01", periods=5)
+  data = {
+    ("Close", "2330.TW"): [10.0, 11.0, 12.0, 11.0, 13.0],
+    ("Close", "^TWII"): [100.0, 101.0, 102.0, 101.0, 103.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+  symbol_info = SymbolInfo(symbol="2330.TW", industrial_group="半導體業")
+
+  # Act
+  beta = provider.get_beta(symbol_info, "^TWII")
+
+  # Assert
+  assert beta == pytest.approx(8.976885215675251)
+  mock_download.assert_called_once_with(
+    tickers=["2330.TW", "^TWII"],
+    period="5y",
+    auto_adjust=True,
+    progress=False,
+  )
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_alpha_with_symbol_info(mock_download):
+  # Arrange
+  import pandas as pd
+
+  dates = pd.date_range("2026-01-01", periods=5)
+  data = {
+    ("Close", "2330.TW"): [10.0, 10.1, 10.2, 10.3, 10.4],
+    ("Close", "^TWII"): [100.0, 100.5, 101.0, 101.5, 102.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+  symbol_info = SymbolInfo(symbol="2330.TW", industrial_group="半導體業")
+
+  # Act
+  alpha = provider.get_alpha(symbol_info, "^TWII", risk_free_rate=0.015, period="1mo")
+
+  # Assert
+  assert isinstance(alpha, float)
+  mock_download.assert_called_once_with(
+    tickers=["2330.TW", "^TWII"],
     period="1mo",
     auto_adjust=True,
     progress=False,
