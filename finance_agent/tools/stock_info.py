@@ -1,6 +1,7 @@
 import csv
 import dataclasses
 import functools
+import inspect
 from io import StringIO
 import os
 from pathlib import Path
@@ -53,8 +54,23 @@ def cache(
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
       force_refresh = kwargs.pop("force_refresh", False)
 
+      sig = inspect.signature(func)
+      has_var_keyword = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in sig.parameters.values()
+      )
+      if "flush" in kwargs and ("flush" not in sig.parameters and not has_var_keyword):
+        flush = kwargs.pop("flush", False)
+      else:
+        bound = sig.bind_partial(*args, **kwargs)
+        bound.apply_defaults()
+        flush = bound.arguments.get("flush", False)
+        if not flush and has_var_keyword:
+          flush = bound.arguments.get("kwargs", {}).get("flush", False)
+
+      should_flush = bool(flush or force_refresh)
+
       # Return cached data when the cache is still valid
-      if not force_refresh and cache_path.exists():
+      if not should_flush and cache_path.exists():
         modified_at = cache_path.stat().st_mtime
         age = pd.Timestamp.now() - pd.Timestamp.fromtimestamp(modified_at)
 
@@ -100,12 +116,16 @@ def _dump_symbol_info(symbols: list[SymbolInfo]) -> pd.DataFrame:
   loader=_load_symbol_info,
   dumper=_dump_symbol_info,
 )
-def get_twse_symbols() -> list[SymbolInfo]:
+def get_twse_symbols(flush: bool = False) -> list[SymbolInfo]:
   """Crawl all TWSE-listed stock symbols from TWSE ISIN directory.
+
+  Args:
+    flush: True to flush the cache and re-obtain the TWSE symbols.
 
   Returns:
     List of SymbolInfo objects representing TWSE-listed equities.
   """
+  del flush
   response = requests.get(
     TWSE_URL,
     timeout=30,

@@ -189,8 +189,59 @@ def test_cache_decorator(tmp_path):
   assert len(res3) == 1
   assert len(calls) == 2
 
+  # Flush executes function again on function without flush in signature
+  res4 = mock_get_symbols(flush=True)
+  assert len(res4) == 1
+  assert len(calls) == 3
 
-def test_get_twse_symbols(tmp_path):
+  # Function with flush: bool = False in its signature
+  flush_cache_file = tmp_path / "test_cache_flush.csv"
+  calls_with_flush = []
+
+  @cache(
+    life_time=timedelta(days=1),
+    cache_file=flush_cache_file,
+    loader=loader,
+    dumper=dumper,
+  )
+  def mock_symbols_with_flush(flush: bool = False) -> list[SymbolInfo]:
+    calls_with_flush.append(1)
+    return [SymbolInfo(symbol="2330.TW", industrial_group="半導體業")]
+
+  # First call executes and writes CSV
+  res_f1 = mock_symbols_with_flush()
+  assert len(res_f1) == 1
+  assert res_f1[0].symbol == "2330.TW"
+  assert len(calls_with_flush) == 1
+  assert flush_cache_file.exists()
+
+  # Second call reads from CSV cache
+  res_f2 = mock_symbols_with_flush()
+  assert len(res_f2) == 1
+  assert len(calls_with_flush) == 1
+
+  # Explicit flush=False reads from CSV cache
+  res_f3 = mock_symbols_with_flush(flush=False)
+  assert len(res_f3) == 1
+  assert len(calls_with_flush) == 1
+
+  # flush=True bypasses cache and re-executes
+  res_f4 = mock_symbols_with_flush(flush=True)
+  assert len(res_f4) == 1
+  assert len(calls_with_flush) == 2
+
+  # Positional True bypasses cache and re-executes
+  res_f5 = mock_symbols_with_flush(True)
+  assert len(res_f5) == 1
+  assert len(calls_with_flush) == 3
+
+  # Positional False reads from CSV cache
+  res_f6 = mock_symbols_with_flush(False)
+  assert len(res_f6) == 1
+  assert len(calls_with_flush) == 3
+
+
+def test_get_twse_symbols():
   from unittest.mock import MagicMock
   from finance_agent.tools import get_twse_symbols
 
@@ -212,15 +263,46 @@ def test_get_twse_symbols(tmp_path):
   mock_response.raise_for_status.return_value = None
 
   with patch("requests.get", return_value=mock_response):
-    with patch("finance_agent.tools.stock_info.cache") as mock_cache:
-      # Bypass cache decorator for direct unit testing of get_twse_symbols logic
-      mock_cache.side_effect = lambda **kwargs: lambda func: func
-      symbols = get_twse_symbols()
+    symbols = get_twse_symbols.__wrapped__(flush=True)
 
-      assert len(symbols) == 3
-      assert symbols[0].symbol == "1101.TW"
-      assert symbols[0].industrial_group == "水泥工業"
-      assert symbols[1].symbol == "2330.TW"
-      assert symbols[1].industrial_group == "半導體業"
-      assert symbols[2].symbol == "0050.TW"
-      assert symbols[2].industrial_group == "ETF"
+    assert len(symbols) == 3
+    assert symbols[0].symbol == "1101.TW"
+    assert symbols[0].industrial_group == "水泥工業"
+    assert symbols[1].symbol == "2330.TW"
+    assert symbols[1].industrial_group == "半導體業"
+    assert symbols[2].symbol == "0050.TW"
+    assert symbols[2].industrial_group == "ETF"
+
+
+def test_get_twse_symbols_with_flush():
+  from unittest.mock import MagicMock
+  from finance_agent.tools import get_twse_symbols
+
+  sample_html = """
+  <html>
+    <body>
+      <table>
+        <tr><th>Col1</th><th>Col2</th><th>Col3</th><th>Col4</th><th>Col5</th></tr>
+        <tr><td>1101 台泥</td><td>TW0001101004</td><td>2062/02/09</td><td>股票</td><td>水泥工業</td></tr>
+        <tr><td>2330 台積電</td><td>TW0002330008</td><td>1994/09/05</td><td>股票</td><td>半導體業</td></tr>
+      </table>
+    </body>
+  </html>
+  """
+
+  mock_response = MagicMock()
+  mock_response.content = sample_html.encode("big5")
+  mock_response.raise_for_status.return_value = None
+
+  with patch("requests.get", return_value=mock_response) as mock_get:
+    symbols = get_twse_symbols(flush=True)
+    assert mock_get.called
+    assert len(symbols) == 2
+    assert symbols[0].symbol == "1101.TW"
+    assert symbols[1].symbol == "2330.TW"
+
+    # Subsequent call without flush should read from cache and not call requests.get
+    mock_get.reset_mock()
+    cached_symbols = get_twse_symbols(flush=False)
+    assert not mock_get.called
+    assert len(cached_symbols) == 2
