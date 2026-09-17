@@ -10,10 +10,13 @@ def test_base_provider_protocol():
         current_price=100.0,
         previous_close_price=90.0,
         market_cap=1000.0,
+        stock_symbol=symbol.symbol if isinstance(symbol, SymbolInfo) else str(symbol),
       )
 
   provider = DummyProvider()
   assert isinstance(provider, BaseProvider)
+  info = provider.get_stock_info("2330.TW")
+  assert info.stock_symbol == "2330.TW"
 
 
 def test_symbol_info_export():

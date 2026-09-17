@@ -70,6 +70,7 @@ class YahooFinanceProvider(BaseProvider):
         current_price=current_price,
         previous_close_price=previous_close_price,
         market_cap=market_cap,
+        stock_symbol=info.get("symbol") or resolved_symbol,
         annual_dividend=info.get("dividendRate")
         or info.get("trailingAnnualDividendRate"),
       )

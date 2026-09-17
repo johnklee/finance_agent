@@ -38,6 +38,7 @@ def test_get_stock_info_tool(mock_get_info):
     current_price=600.0,
     previous_close_price=590.0,
     market_cap=15000000.0,
+    stock_symbol="2330.TW",
   )
   mock_get_info.return_value = expected_info
 
@@ -93,6 +94,7 @@ def test_agent_tools_with_symbol_info(
     current_price=600.0,
     previous_close_price=590.0,
     market_cap=15000000.0,
+    stock_symbol="2330.TW",
   )
   mock_get_roe.return_value = 25.5
   mock_get_beta.return_value = 1.2

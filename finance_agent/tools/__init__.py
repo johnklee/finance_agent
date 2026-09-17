@@ -29,6 +29,7 @@ class StockInfo:
     current_price: Current stock price
     previous_close_price: Previous close price.
     market_cap: Market capitalization.
+    stock_symbol: Stock symbol. e.g. `2330.TW`
   """
 
   annual_dividend: float | None = None
@@ -37,6 +38,7 @@ class StockInfo:
   current_price: float
   previous_close_price: float
   market_cap: float
+  stock_symbol: str
 
   @property
   def dividend_yield(self) -> float | None:

@@ -31,6 +31,7 @@ def test_yahoo_finance_provider_success(mock_ticker):
   assert stock_info.current_price == 150.0
   assert stock_info.previous_close_price == 145.0
   assert stock_info.market_cap == 1000000.0
+  assert stock_info.stock_symbol == "TEST"
   assert stock_info.annual_dividend == 7.5
   assert stock_info.dividend_yield == 5.0
   mock_ticker.assert_called_once_with("TEST")
@@ -96,6 +97,7 @@ def test_yahoo_finance_provider_stock_id_integer(mock_stock_id_to_symbol, mock_t
   # Assert
   assert stock_info.company_name == "TSMC"
   assert stock_info.current_price == 600.0
+  assert stock_info.stock_symbol == "2330.TW"
   mock_stock_id_to_symbol.assert_called_once_with("2330")
   mock_ticker.assert_called_once_with("2330.TW")
 
@@ -123,6 +125,7 @@ def test_yahoo_finance_provider_stock_id_string(mock_stock_id_to_symbol, mock_ti
   # Assert
   assert stock_info.company_name == "TSMC"
   assert stock_info.current_price == 600.0
+  assert stock_info.stock_symbol == "2330.TW"
   mock_stock_id_to_symbol.assert_called_once_with("2330")
   mock_ticker.assert_called_once_with("2330.TW")
 
@@ -155,6 +158,7 @@ def test_yahoo_finance_provider_stock_id_not_found_fallback(
   # Assert
   assert stock_info.company_name == "Fallback Company"
   assert stock_info.current_price == 100.0
+  assert stock_info.stock_symbol == "2330.TW"
   mock_stock_id_to_symbol.assert_called_once_with("2330.TW")
   mock_ticker.assert_called_once_with("2330.TW")
 
@@ -387,6 +391,7 @@ def test_yahoo_finance_provider_symbol_info(mock_ticker):
   # Assert
   assert stock_info.company_name == "TSMC"
   assert stock_info.current_price == 600.0
+  assert stock_info.stock_symbol == "2330.TW"
   mock_ticker.assert_called_once_with("2330.TW")
 
 

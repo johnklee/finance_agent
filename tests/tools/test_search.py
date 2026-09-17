@@ -10,6 +10,7 @@ def _make_stock(
   name: str,
   price: float = 100.0,
   annual_dividend: float | None = None,
+  stock_symbol: str = "2330.TW",
 ) -> StockInfo:
   return StockInfo(
     company_name=name,
@@ -17,6 +18,7 @@ def _make_stock(
     current_price=price,
     previous_close_price=price,
     market_cap=1_000_000.0,
+    stock_symbol=stock_symbol,
     annual_dividend=annual_dividend,
   )
 

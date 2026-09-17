@@ -101,8 +101,10 @@ def test_stock_info_dividend_yield():
     current_price=100.0,
     previous_close_price=95.0,
     market_cap=1000000.0,
+    stock_symbol="2330.TW",
     annual_dividend=5.0,
   )
+  assert stock.stock_symbol == "2330.TW"
   assert stock.annual_dividend == 5.0
   assert stock.dividend_yield == 5.0
 
@@ -113,6 +115,7 @@ def test_stock_info_dividend_yield():
     current_price=100.0,
     previous_close_price=95.0,
     market_cap=1000000.0,
+    stock_symbol="2330.TW",
     annual_dividend=None,
   )
   assert stock_no_div.annual_dividend is None
@@ -125,6 +128,7 @@ def test_stock_info_dividend_yield():
     current_price=0.0,
     previous_close_price=95.0,
     market_cap=1000000.0,
+    stock_symbol="2330.TW",
     annual_dividend=5.0,
   )
   assert stock_zero_price.dividend_yield is None
