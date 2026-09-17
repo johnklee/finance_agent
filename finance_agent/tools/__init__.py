@@ -128,3 +128,8 @@ class BaseProvider(Protocol):
       Example: 3.2 means 3.2%
     """
     pass
+
+
+from finance_agent.tools.search import (  # noqa: E402
+  get_top_n_dividend_yield as get_top_n_dividend_yield,
+)
