@@ -4,19 +4,16 @@ import functools
 import inspect
 import os
 import re
+from collections.abc import Callable
 from datetime import timedelta
 from io import StringIO
 from pathlib import Path
-from typing import Callable, ParamSpec, TypeVar
 
 import pandas as pd
 import requests
 import twstock
 
 from finance_agent.tools.exceptions import StockNotFoundError
-
-P = ParamSpec("P")
-T = TypeVar("T")
 
 
 @dataclasses.dataclass(frozen=True)
@@ -32,7 +29,7 @@ class SymbolInfo:
   industrial_group: str
 
 
-def cache(
+def cache[T](
   *,
   life_time: timedelta,
   cache_file: str | Path,
@@ -49,7 +46,7 @@ def cache(
   """
   cache_path = Path(cache_file)
 
-  def decorator(func: Callable[P, T]) -> Callable[P, T]:
+  def decorator[**P](func: Callable[P, T]) -> Callable[P, T]:
     @functools.wraps(func)
     def wrapper(*args: P.args, **kwargs: P.kwargs) -> T:
       force_refresh = kwargs.pop("force_refresh", False)
@@ -258,7 +255,7 @@ def csv_cache(func):
 
   # Load existing cache once when decorator is applied
   cache_dict = {}
-  with open(cache_path, "r", newline="", encoding="utf-8") as f:
+  with open(cache_path, newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
     _ = next(reader, None)  # Skip header row
     for row in reader:
