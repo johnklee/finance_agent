@@ -12,6 +12,7 @@ from finance_agent.agent import (
   root_agent,
 )
 from finance_agent.tools import StockInfo, SymbolInfo
+from finance_agent.tools.exceptions import FinanceDataError
 
 
 def test_root_agent_definition():
@@ -38,6 +39,7 @@ def test_get_stock_info_tool(mock_get_info):
     current_price=600.0,
     previous_close_price=590.0,
     market_cap=15000000.0,
+    stock_symbol="2330.TW",
   )
   mock_get_info.return_value = expected_info
 
@@ -93,6 +95,7 @@ def test_agent_tools_with_symbol_info(
     current_price=600.0,
     previous_close_price=590.0,
     market_cap=15000000.0,
+    stock_symbol="2330.TW",
   )
   mock_get_roe.return_value = 25.5
   mock_get_beta.return_value = 1.2
@@ -125,7 +128,7 @@ def test_finance_agent_class():
 
 @patch("finance_agent.agent._provider.get_stock_info")
 def test_get_stock_info_tool_exception(mock_get_info):
-  mock_get_info.side_effect = Exception("Not found")
+  mock_get_info.side_effect = FinanceDataError("Not found")
 
   result = get_stock_info("INVALID")
 
@@ -135,7 +138,7 @@ def test_get_stock_info_tool_exception(mock_get_info):
 
 @patch("finance_agent.agent._provider.get_latest_roe")
 def test_get_latest_roe_tool_exception(mock_get_roe):
-  mock_get_roe.side_effect = Exception("ROE unavailable")
+  mock_get_roe.side_effect = ValueError("ROE unavailable")
 
   result = get_latest_roe("INVALID")
 
@@ -145,7 +148,7 @@ def test_get_latest_roe_tool_exception(mock_get_roe):
 
 @patch("finance_agent.agent._provider.get_beta")
 def test_get_beta_tool_exception(mock_get_beta):
-  mock_get_beta.side_effect = Exception("Insufficient data")
+  mock_get_beta.side_effect = ValueError("Insufficient data")
 
   result = get_beta("INVALID")
 
@@ -155,7 +158,7 @@ def test_get_beta_tool_exception(mock_get_beta):
 
 @patch("finance_agent.agent._provider.get_alpha")
 def test_get_alpha_tool_exception(mock_get_alpha):
-  mock_get_alpha.side_effect = Exception("Insufficient data")
+  mock_get_alpha.side_effect = ValueError("Insufficient data")
 
   result = get_alpha("INVALID")
 
@@ -165,10 +168,10 @@ def test_get_alpha_tool_exception(mock_get_alpha):
 
 def test_finance_agent_class_exception_handling():
   mock_provider = MagicMock()
-  mock_provider.get_stock_info.side_effect = Exception("Stock error")
-  mock_provider.get_latest_roe.side_effect = Exception("ROE error")
-  mock_provider.get_beta.side_effect = Exception("Beta error")
-  mock_provider.get_alpha.side_effect = Exception("Alpha error")
+  mock_provider.get_stock_info.side_effect = FinanceDataError("Stock error")
+  mock_provider.get_latest_roe.side_effect = ValueError("ROE error")
+  mock_provider.get_beta.side_effect = ValueError("Beta error")
+  mock_provider.get_alpha.side_effect = ValueError("Alpha error")
 
   agent = FinanceAgent(provider=mock_provider)
   tools = {tool.__name__: tool for tool in agent.root_agent.tools}

@@ -5,10 +5,19 @@ from typing import Protocol, runtime_checkable
 
 from finance_agent import constants
 from finance_agent.tools import stock_info
+from finance_agent.tools.search import (
+  get_top_n_dividend_yield as get_top_n_dividend_yield,
+)
 from finance_agent.tools.stock_info import (
   cache as cache,
+)
+from finance_agent.tools.stock_info import (
   csv_cache as csv_cache,
+)
+from finance_agent.tools.stock_info import (
   get_twse_symbols as get_twse_symbols,
+)
+from finance_agent.tools.stock_info import (
   stock_id_to_symbol as stock_id_to_symbol,
 )
 
@@ -29,6 +38,7 @@ class StockInfo:
     current_price: Current stock price
     previous_close_price: Previous close price.
     market_cap: Market capitalization.
+    stock_symbol: Stock symbol. e.g. `2330.TW`
   """
 
   annual_dividend: float | None = None
@@ -37,6 +47,7 @@ class StockInfo:
   current_price: float
   previous_close_price: float
   market_cap: float
+  stock_symbol: str
 
   @property
   def dividend_yield(self) -> float | None:
@@ -59,7 +70,6 @@ class BaseProvider(Protocol):
     Returns:
       Compony information as `StockInfo`.
     """
-    pass
 
   def get_latest_roe(self, symbol: str | int | SymbolInfo) -> float:
     """Gets latest ROE of given stock sympol/ID.
@@ -74,7 +84,6 @@ class BaseProvider(Protocol):
       - ``21.53`` represents **21.53%**
       - ``8.41`` represents **8.41%**
     """
-    pass
 
   def get_beta(
     self,
@@ -102,7 +111,6 @@ class BaseProvider(Protocol):
     Raises:
       ValueError: If historical price data is unavailable or insufficient.
     """
-    pass
 
   def get_alpha(
     self,
@@ -127,9 +135,3 @@ class BaseProvider(Protocol):
       Annualized alpha (percentage).
       Example: 3.2 means 3.2%
     """
-    pass
-
-
-from finance_agent.tools.search import (  # noqa: E402
-  get_top_n_dividend_yield as get_top_n_dividend_yield,
-)

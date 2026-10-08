@@ -1,14 +1,20 @@
 """Search utilities for querying top stocks by financial metrics."""
 
-from collections.abc import Sequence
+from __future__ import annotations
 
-from finance_agent.tools import (
-  BaseProvider as BaseProvider,
-  StockInfo as StockInfo,
-  SymbolInfo as SymbolInfo,
-  TW_BENCHMARK_SYMBOL as TW_BENCHMARK_SYMBOL,
-  get_twse_symbols,
-)
+import logging
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
+
+from tqdm import tqdm
+
+from finance_agent.tools.exceptions import FinanceDataError
+from finance_agent.tools.stock_info import SymbolInfo, get_twse_symbols
+
+if TYPE_CHECKING:
+  from finance_agent.tools import BaseProvider, StockInfo
+
+logger = logging.getLogger(__name__)
 
 
 def get_top_n_dividend_yield(
@@ -33,10 +39,11 @@ def get_top_n_dividend_yield(
   symbols: Sequence[SymbolInfo] = get_twse_symbols()
   stock_infos: list[StockInfo] = []
 
-  for symbol_info in symbols:
+  for symbol_info in tqdm(symbols):
     try:
       info = data_provider.get_stock_info(symbol_info)
-    except Exception:
+    except (ValueError, KeyError, FinanceDataError) as e:
+      logger.debug(f"Failed to fetch info for {symbol_info}: {e}")
       continue
 
     if info.dividend_yield is not None:

@@ -101,8 +101,10 @@ def test_stock_info_dividend_yield():
     current_price=100.0,
     previous_close_price=95.0,
     market_cap=1000000.0,
+    stock_symbol="2330.TW",
     annual_dividend=5.0,
   )
+  assert stock.stock_symbol == "2330.TW"
   assert stock.annual_dividend == 5.0
   assert stock.dividend_yield == 5.0
 
@@ -113,6 +115,7 @@ def test_stock_info_dividend_yield():
     current_price=100.0,
     previous_close_price=95.0,
     market_cap=1000000.0,
+    stock_symbol="2330.TW",
     annual_dividend=None,
   )
   assert stock_no_div.annual_dividend is None
@@ -125,6 +128,7 @@ def test_stock_info_dividend_yield():
     current_price=0.0,
     previous_close_price=95.0,
     market_cap=1000000.0,
+    stock_symbol="2330.TW",
     annual_dividend=5.0,
   )
   assert stock_zero_price.dividend_yield is None
@@ -274,9 +278,11 @@ def test_get_twse_symbols():
     assert symbols[2].industrial_group == "ETF"
 
 
-def test_get_twse_symbols_with_flush():
+def test_get_twse_symbols_with_flush(tmp_path, monkeypatch):
   from unittest.mock import MagicMock
   from finance_agent.tools import get_twse_symbols
+
+  monkeypatch.chdir(tmp_path)
 
   sample_html = """
   <html>
@@ -306,3 +312,73 @@ def test_get_twse_symbols_with_flush():
     cached_symbols = get_twse_symbols(flush=False)
     assert not mock_get.called
     assert len(cached_symbols) == 2
+
+
+def test_cache_decorator_partial_records_update(tmp_path):
+  import dataclasses
+  from datetime import timedelta
+  import pandas as pd
+  from finance_agent.tools import StockInfo, SymbolInfo, cache
+
+  cache_file = tmp_path / "partial_stock_info_cache.csv"
+
+  def loader(df: pd.DataFrame) -> StockInfo:
+    row = df.iloc[0]
+    return StockInfo(
+      company_name=str(row["company_name"]),
+      currency=str(row["currency"]),
+      current_price=float(row["current_price"]),
+      previous_close_price=float(row["previous_close_price"]),
+      market_cap=float(row["market_cap"]),
+      stock_symbol=str(row["stock_symbol"]),
+      annual_dividend=None
+      if pd.isna(row.get("annual_dividend"))
+      else float(row["annual_dividend"]),
+    )
+
+  def dumper(info: StockInfo) -> pd.DataFrame:
+    return pd.DataFrame([dataclasses.asdict(info)])
+
+  calls: list[str] = []
+
+  @cache(
+    life_time=timedelta(hours=10),
+    cache_file=cache_file,
+    loader=loader,
+    dumper=dumper,
+  )
+  def fetch_stock(symbol: str | int | SymbolInfo) -> StockInfo:
+    sym = symbol.symbol if isinstance(symbol, SymbolInfo) else str(symbol)
+    calls.append(sym)
+    return StockInfo(
+      company_name=f"Company {sym}",
+      currency="TWD",
+      current_price=100.0,
+      previous_close_price=99.0,
+      market_cap=1000000.0,
+      stock_symbol=sym,
+      annual_dividend=5.0,
+    )
+
+  # 1. Seed CSV with 1101.TW
+  res_1101 = fetch_stock("1101.TW")
+  assert res_1101.stock_symbol == "1101.TW"
+  assert calls == ["1101.TW"]
+
+  # 2. Query 1101.TW again -> found in CSV, no new call
+  assert fetch_stock("1101.TW") == res_1101
+  assert calls == ["1101.TW"]
+
+  # 3. Query 2330.TW -> not in CSV yet, fetches and updates CSV
+  res_2330 = fetch_stock(SymbolInfo(symbol="2330.TW", industrial_group="半導體業"))
+  assert res_2330.stock_symbol == "2330.TW"
+  assert calls == ["1101.TW", "2330.TW"]
+
+  # Verify CSV now contains both records
+  df_cached = pd.read_csv(cache_file)
+  assert list(df_cached["stock_symbol"]) == ["1101.TW", "2330.TW"]
+
+  # 4. Query both 1101.TW and 2330.TW -> both served from CSV cache
+  assert fetch_stock("1101.TW") == res_1101
+  assert fetch_stock("2330.TW") == res_2330
+  assert calls == ["1101.TW", "2330.TW"]

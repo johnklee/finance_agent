@@ -3,12 +3,14 @@
 import warnings
 
 from google.adk.agents import Agent
+
 from finance_agent.tools import (
+  TW_BENCHMARK_SYMBOL,
   BaseProvider,
   StockInfo,
   SymbolInfo,
-  TW_BENCHMARK_SYMBOL,
 )
+from finance_agent.tools.exceptions import FinanceDataError
 from finance_agent.tools.yfinance_finance import YahooFinanceProvider
 
 # Suppress experimental UserWarnings emitted by ADK framework
@@ -30,7 +32,7 @@ def get_stock_info(symbol: str | int | SymbolInfo) -> StockInfo | str:
   """
   try:
     return _provider.get_stock_info(symbol)
-  except Exception as e:
+  except (ValueError, KeyError, FinanceDataError) as e:
     return f"Error fetching stock info for symbol '{symbol}': {e}"
 
 
@@ -45,7 +47,7 @@ def get_latest_roe(symbol: str | int | SymbolInfo) -> float | str:
   """
   try:
     return _provider.get_latest_roe(symbol)
-  except Exception as e:
+  except (ValueError, KeyError, FinanceDataError) as e:
     return f"Error fetching ROE for symbol '{symbol}': {e}"
 
 
@@ -66,7 +68,7 @@ def get_beta(
   """
   try:
     return _provider.get_beta(symbol, benchmark_symbol=benchmark_symbol, period=period)
-  except Exception as e:
+  except (ValueError, KeyError, FinanceDataError) as e:
     return f"Error calculating beta for symbol '{symbol}': {e}"
 
 
@@ -94,7 +96,7 @@ def get_alpha(
       risk_free_rate=risk_free_rate,
       period=period,
     )
-  except Exception as e:
+  except (ValueError, KeyError, FinanceDataError) as e:
     return f"Error calculating alpha for symbol '{symbol}': {e}"
 
 
@@ -128,13 +130,13 @@ class FinanceAgent:
     def _get_stock_info(symbol: str | int) -> StockInfo | str:
       try:
         return self.provider.get_stock_info(symbol)
-      except Exception as e:
+      except (ValueError, KeyError, FinanceDataError) as e:
         return f"Error fetching stock info for symbol '{symbol}': {e}"
 
     def _get_latest_roe(symbol: str | int) -> float | str:
       try:
         return self.provider.get_latest_roe(symbol)
-      except Exception as e:
+      except (ValueError, KeyError, FinanceDataError) as e:
         return f"Error fetching ROE for symbol '{symbol}': {e}"
 
     def _get_beta(
@@ -146,7 +148,7 @@ class FinanceAgent:
         return self.provider.get_beta(
           symbol, benchmark_symbol=benchmark_symbol, period=period
         )
-      except Exception as e:
+      except (ValueError, KeyError, FinanceDataError) as e:
         return f"Error calculating beta for symbol '{symbol}': {e}"
 
     def _get_alpha(
@@ -162,7 +164,7 @@ class FinanceAgent:
           risk_free_rate=risk_free_rate,
           period=period,
         )
-      except Exception as e:
+      except (ValueError, KeyError, FinanceDataError) as e:
         return f"Error calculating alpha for symbol '{symbol}': {e}"
 
     self.root_agent = Agent(
@@ -179,11 +181,11 @@ class FinanceAgent:
 ADKAgent = FinanceAgent
 
 __all__ = [
-  "root_agent",
-  "FinanceAgent",
   "ADKAgent",
-  "get_stock_info",
-  "get_latest_roe",
-  "get_beta",
+  "FinanceAgent",
   "get_alpha",
+  "get_beta",
+  "get_latest_roe",
+  "get_stock_info",
+  "root_agent",
 ]
