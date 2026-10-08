@@ -2,13 +2,15 @@
 
 import dataclasses
 from datetime import timedelta
+
 import pandas as pd
 import yfinance as yf
+
 from finance_agent.tools import (
+  TW_BENCHMARK_SYMBOL,
   BaseProvider,
   StockInfo,
   SymbolInfo,
-  TW_BENCHMARK_SYMBOL,
   cache,
 )
 from finance_agent.tools.exceptions import FinanceDataError, StockNotFoundError

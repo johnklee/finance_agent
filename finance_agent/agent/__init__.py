@@ -3,11 +3,12 @@
 import warnings
 
 from google.adk.agents import Agent
+
 from finance_agent.tools import (
+  TW_BENCHMARK_SYMBOL,
   BaseProvider,
   StockInfo,
   SymbolInfo,
-  TW_BENCHMARK_SYMBOL,
 )
 from finance_agent.tools.exceptions import FinanceDataError
 from finance_agent.tools.yfinance_finance import YahooFinanceProvider
@@ -180,11 +181,11 @@ class FinanceAgent:
 ADKAgent = FinanceAgent
 
 __all__ = [
-  "root_agent",
-  "FinanceAgent",
   "ADKAgent",
-  "get_stock_info",
-  "get_latest_roe",
-  "get_beta",
+  "FinanceAgent",
   "get_alpha",
+  "get_beta",
+  "get_latest_roe",
+  "get_stock_info",
+  "root_agent",
 ]

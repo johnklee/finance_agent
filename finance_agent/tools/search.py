@@ -1,18 +1,18 @@
 """Search utilities for querying top stocks by financial metrics."""
 
-from collections.abc import Sequence
+from __future__ import annotations
+
 import logging
+from collections.abc import Sequence
+from typing import TYPE_CHECKING
 
 from tqdm import tqdm
 
-from finance_agent.tools import (
-  BaseProvider as BaseProvider,
-  StockInfo as StockInfo,
-  SymbolInfo as SymbolInfo,
-  TW_BENCHMARK_SYMBOL as TW_BENCHMARK_SYMBOL,
-  get_twse_symbols,
-)
 from finance_agent.tools.exceptions import FinanceDataError
+from finance_agent.tools.stock_info import SymbolInfo, get_twse_symbols
+
+if TYPE_CHECKING:
+  from finance_agent.tools import BaseProvider, StockInfo
 
 logger = logging.getLogger(__name__)
 

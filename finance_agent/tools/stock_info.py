@@ -2,16 +2,16 @@ import csv
 import dataclasses
 import functools
 import inspect
-from io import StringIO
 import os
-from pathlib import Path
 import re
-from typing import Callable, ParamSpec, TypeVar
-import twstock
-
 from datetime import timedelta
+from io import StringIO
+from pathlib import Path
+from typing import Callable, ParamSpec, TypeVar
+
 import pandas as pd
 import requests
+import twstock
 
 from finance_agent.tools.exceptions import StockNotFoundError
 
