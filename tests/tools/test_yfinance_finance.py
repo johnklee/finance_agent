@@ -1,8 +1,17 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from finance_agent.tools.yfinance_finance import YahooFinanceProvider
+from finance_agent.tools.yfinance_finance import (
+  YahooFinanceProvider,
+  _dump_stock_info_cache,
+  _load_stock_info_cache,
+)
 from finance_agent.tools.exceptions import FinanceDataError
 from finance_agent.tools import StockInfo, SymbolInfo
+
+
+@pytest.fixture(autouse=True)
+def isolate_cache_dir(tmp_path, monkeypatch):
+  monkeypatch.chdir(tmp_path)
 
 
 @patch("finance_agent.tools.yfinance_finance.yf.Ticker")
@@ -471,3 +480,91 @@ def test_get_alpha_with_symbol_info(mock_download):
     auto_adjust=True,
     progress=False,
   )
+
+
+def test_dump_and_load_stock_info_cache():
+  stock = StockInfo(
+    company_name="TSMC",
+    currency="TWD",
+    current_price=600.0,
+    previous_close_price=590.0,
+    market_cap=15000000.0,
+    stock_symbol="2330.TW",
+    annual_dividend=12.0,
+  )
+  df = _dump_stock_info_cache(stock)
+  loaded = _load_stock_info_cache(df)
+  assert loaded == stock
+
+  stock_no_div = StockInfo(
+    company_name="No Div Co",
+    currency="TWD",
+    current_price=50.0,
+    previous_close_price=49.0,
+    market_cap=500000.0,
+    stock_symbol="1101.TW",
+    annual_dividend=None,
+  )
+  df_no_div = _dump_stock_info_cache(stock_no_div)
+  loaded_no_div = _load_stock_info_cache(df_no_div)
+  assert loaded_no_div == stock_no_div
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_get_stock_info_cache(mock_ticker, tmp_path):
+  info_map = {
+    "2330.TW": {
+      "longName": "TSMC",
+      "currency": "TWD",
+      "currentPrice": 600.0,
+      "previousClose": 590.0,
+      "marketCap": 15000000.0,
+      "symbol": "2330.TW",
+      "dividendRate": 12.0,
+    },
+    "2317.TW": {
+      "longName": "Hon Hai",
+      "currency": "TWD",
+      "currentPrice": 200.0,
+      "previousClose": 195.0,
+      "marketCap": 3000000.0,
+      "symbol": "2317.TW",
+      "dividendRate": 5.5,
+    },
+  }
+
+  def ticker_side_effect(sym: str):
+    instance = MagicMock()
+    instance.info = info_map[sym]
+    return instance
+
+  mock_ticker.side_effect = ticker_side_effect
+  provider = YahooFinanceProvider()
+
+  # First call for 2330.TW fetches from yfinance and writes cache
+  res1 = provider.get_stock_info("2330.TW")
+  assert res1.company_name == "TSMC"
+  assert res1.stock_symbol == "2330.TW"
+  assert mock_ticker.call_count == 1
+  assert (tmp_path / "cache" / "stock_info_cache.csv").exists()
+
+  # Second call for 2330.TW hits cache without calling yfinance
+  res2 = provider.get_stock_info("2330.TW")
+  assert res2 == res1
+  assert mock_ticker.call_count == 1
+
+  # Call for 2317.TW misses cache, fetches from yfinance, and appends to cache
+  res3 = provider.get_stock_info("2317.TW")
+  assert res3.company_name == "Hon Hai"
+  assert res3.stock_symbol == "2317.TW"
+  assert mock_ticker.call_count == 2
+
+  # Subsequent calls for both 2330.TW and 2317.TW hit cache
+  assert provider.get_stock_info("2330.TW") == res1
+  assert provider.get_stock_info("2317.TW") == res3
+  assert mock_ticker.call_count == 2
+
+  # Flush forces re-fetch
+  res_flushed = provider.get_stock_info("2330.TW", flush=True)
+  assert res_flushed == res1
+  assert mock_ticker.call_count == 3

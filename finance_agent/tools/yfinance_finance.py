@@ -1,5 +1,7 @@
 """Yahoo Finance data provider implementation."""
 
+import dataclasses
+from datetime import timedelta
 import pandas as pd
 import yfinance as yf
 from finance_agent.tools import (
@@ -7,9 +9,34 @@ from finance_agent.tools import (
   StockInfo,
   SymbolInfo,
   TW_BENCHMARK_SYMBOL,
+  cache,
 )
 from finance_agent.tools.exceptions import FinanceDataError, StockNotFoundError
 from finance_agent.tools.stock_info import stock_id_to_symbol
+
+
+def _load_stock_info_cache(df: pd.DataFrame) -> StockInfo:
+  """Load StockInfo dataclass from a DataFrame."""
+  row = df.iloc[0]
+  annual_dividend = row.get("annual_dividend")
+  annual_dividend = None if pd.isna(annual_dividend) else float(annual_dividend)
+  company_name = row.get("company_name")
+  company_name = "" if pd.isna(company_name) else str(company_name)
+
+  return StockInfo(
+    company_name=company_name,
+    currency=str(row["currency"]),
+    current_price=float(row["current_price"]),
+    previous_close_price=float(row["previous_close_price"]),
+    market_cap=float(row["market_cap"]),
+    stock_symbol=str(row["stock_symbol"]),
+    annual_dividend=annual_dividend,
+  )
+
+
+def _dump_stock_info_cache(stock_info: StockInfo) -> pd.DataFrame:
+  """Convert StockInfo dataclass to a DataFrame."""
+  return pd.DataFrame([dataclasses.asdict(stock_info)])
 
 
 class YahooFinanceProvider(BaseProvider):
@@ -25,6 +52,12 @@ class YahooFinanceProvider(BaseProvider):
     except StockNotFoundError:
       return resolved_symbol
 
+  @cache(
+    life_time=timedelta(hours=10),
+    cache_file="cache/stock_info_cache.csv",
+    loader=_load_stock_info_cache,
+    dumper=_dump_stock_info_cache,
+  )
   def get_stock_info(self, symbol: str | int | SymbolInfo) -> StockInfo:
     """Gets stock information according to given symbol.
 

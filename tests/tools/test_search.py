@@ -112,3 +112,22 @@ def test_get_top_n_dividend_yield_non_positive_n():
     assert get_top_n_dividend_yield(provider, n=0) == []
     assert get_top_n_dividend_yield(provider, n=-1) == []
     mock_symbols.assert_not_called()
+
+
+def test_get_top_n_dividend_yield_uses_tqdm():
+  symbols = [
+    SymbolInfo(symbol="2330.TW", industrial_group="半導體業"),
+  ]
+  provider = MagicMock(spec=BaseProvider)
+  provider.get_stock_info.return_value = _make_stock(
+    "TSMC", price=100.0, annual_dividend=3.0
+  )
+
+  with (
+    patch("finance_agent.tools.search.get_twse_symbols", return_value=symbols),
+    patch("finance_agent.tools.search.tqdm", side_effect=lambda x: x) as mock_tqdm,
+  ):
+    result = get_top_n_dividend_yield(provider, n=1)
+
+  mock_tqdm.assert_called_once_with(symbols)
+  assert len(result) == 1

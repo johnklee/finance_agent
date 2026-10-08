@@ -60,6 +60,8 @@ def cache(
       )
       if "flush" in kwargs and ("flush" not in sig.parameters and not has_var_keyword):
         flush = kwargs.pop("flush", False)
+        bound = sig.bind_partial(*args, **kwargs)
+        bound.apply_defaults()
       else:
         bound = sig.bind_partial(*args, **kwargs)
         bound.apply_defaults()
@@ -69,14 +71,80 @@ def cache(
 
       should_flush = bool(flush or force_refresh)
 
-      # Return cached data when the cache is still valid
-      if not should_flush and cache_path.exists():
+      cache_valid = False
+      if cache_path.exists():
         modified_at = cache_path.stat().st_mtime
         age = pd.Timestamp.now() - pd.Timestamp.fromtimestamp(modified_at)
-
         if age < life_time:
-          df = pd.read_csv(cache_path)
-          return loader(df)
+          cache_valid = True
+
+      if "symbol" in bound.arguments:
+        raw_symbol = bound.arguments["symbol"]
+        self_obj = bound.arguments.get("self")
+        existing_df: pd.DataFrame | None = None
+
+        if cache_valid:
+          try:
+            existing_df = pd.read_csv(cache_path)
+          except pd.errors.EmptyDataError:
+            existing_df = None
+
+        if (
+          not should_flush
+          and existing_df is not None
+          and not existing_df.empty
+          and "stock_symbol" in existing_df.columns
+        ):
+          cached_symbols = existing_df["stock_symbol"].astype(str)
+          if isinstance(raw_symbol, SymbolInfo):
+            target_symbol: str | None = raw_symbol.symbol
+          else:
+            raw_str = str(raw_symbol)
+            if (cached_symbols == raw_str).any():
+              target_symbol = raw_str
+            elif cached_symbols.str.startswith(f"{raw_str}.").any():
+              if self_obj is not None and hasattr(self_obj, "_resolve_symbol"):
+                target_symbol = self_obj._resolve_symbol(raw_symbol)
+              else:
+                try:
+                  target_symbol = stock_id_to_symbol(raw_str)
+                except StockNotFoundError:
+                  target_symbol = raw_str
+            else:
+              target_symbol = None
+
+          if target_symbol is not None:
+            matched_df = existing_df[cached_symbols == target_symbol]
+            if not matched_df.empty:
+              return loader(matched_df)
+
+        result = func(*args, **kwargs)
+        new_df = dumper(result)
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        if (
+          cache_valid
+          and existing_df is not None
+          and not existing_df.empty
+          and "stock_symbol" in existing_df.columns
+          and "stock_symbol" in new_df.columns
+        ):
+          existing_df = existing_df[
+            ~existing_df["stock_symbol"]
+            .astype(str)
+            .isin(new_df["stock_symbol"].astype(str))
+          ]
+          combined_df = pd.DataFrame(
+            existing_df.to_dict("records") + new_df.to_dict("records")
+          )
+          combined_df.to_csv(cache_path, index=False)
+        else:
+          new_df.to_csv(cache_path, index=False)
+        return result
+
+      # Return cached data when the cache is still valid
+      if not should_flush and cache_valid:
+        df = pd.read_csv(cache_path)
+        return loader(df)
 
       # Fetch fresh data and save to cache CSV
       result = func(*args, **kwargs)

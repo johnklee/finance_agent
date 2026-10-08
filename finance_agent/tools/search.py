@@ -2,6 +2,8 @@
 
 from collections.abc import Sequence
 
+from tqdm import tqdm
+
 from finance_agent.tools import (
   BaseProvider as BaseProvider,
   StockInfo as StockInfo,
@@ -33,7 +35,7 @@ def get_top_n_dividend_yield(
   symbols: Sequence[SymbolInfo] = get_twse_symbols()
   stock_infos: list[StockInfo] = []
 
-  for symbol_info in symbols:
+  for symbol_info in tqdm(symbols):
     try:
       info = data_provider.get_stock_info(symbol_info)
     except Exception:
