@@ -22,7 +22,7 @@ output_requirements:
 	pipenv requirements > requirements.txt
 
 output_test_requirements:
-	pipenv requirements --dev > requirements_test.txt
+	uv pip compile pyproject.toml --group dev -o requirements_test.txt
 
 sync_requirements:
 	uv pip compile pyproject.toml -o requirements.txt
