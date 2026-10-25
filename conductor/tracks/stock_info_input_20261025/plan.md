@@ -14,4 +14,4 @@
 - [x] Task: Quality and Coverage Verification
     - [x] Run `ruff check .` to verify no lint or formatting issues.
     - [x] Verify test suite passes with full coverage.
-- [ ] Task: Conductor - User Manual Verification 'Phase 1: Test updates and implementation' (Protocol in workflow.md)
+- [~] Task: Conductor - User Manual Verification 'Phase 1: Test updates and implementation' (Protocol in workflow.md)
