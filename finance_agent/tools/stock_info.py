@@ -95,6 +95,8 @@ def cache[T](
           cached_symbols = existing_df["stock_symbol"].astype(str)
           if isinstance(raw_symbol, SymbolInfo):
             target_symbol: str | None = raw_symbol.symbol
+          elif hasattr(raw_symbol, "stock_symbol"):
+            target_symbol = str(raw_symbol.stock_symbol)
           else:
             raw_str = str(raw_symbol)
             if (cached_symbols == raw_str).any():
