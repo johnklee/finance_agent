@@ -482,6 +482,138 @@ def test_get_alpha_with_symbol_info(mock_download):
   )
 
 
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_get_stock_info_with_stock_info(mock_ticker):
+  # Arrange
+  mock_ticker_instance = MagicMock()
+  mock_ticker_instance.info = {
+    "longName": "Taisun Enterprise Co., Ltd.",
+    "currency": "TWD",
+    "currentPrice": 14.25,
+    "previousClose": 14.3,
+    "marketCap": 6930044928.0,
+  }
+  mock_ticker.return_value = mock_ticker_instance
+
+  provider = YahooFinanceProvider()
+  input_info = StockInfo(
+    company_name="Taisun Enterprise Co., Ltd.",
+    currency="TWD",
+    current_price=14.25,
+    previous_close_price=14.3,
+    market_cap=6930044928.0,
+    stock_symbol="1218.TW",
+  )
+
+  # Act
+  stock_info = provider.get_stock_info(input_info)
+
+  # Assert
+  assert stock_info.company_name == "Taisun Enterprise Co., Ltd."
+  assert stock_info.current_price == 14.25
+  assert stock_info.stock_symbol == "1218.TW"
+  mock_ticker.assert_called_once_with("1218.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.Ticker")
+def test_yahoo_finance_provider_get_latest_roe_with_stock_info(mock_ticker):
+  # Arrange
+  mock_ticker_instance = MagicMock()
+  mock_ticker_instance.info = {
+    "returnOnEquity": 0.15,
+  }
+  mock_ticker.return_value = mock_ticker_instance
+
+  provider = YahooFinanceProvider()
+  input_info = StockInfo(
+    company_name="Taisun Enterprise Co., Ltd.",
+    currency="TWD",
+    current_price=14.25,
+    previous_close_price=14.3,
+    market_cap=6930044928.0,
+    stock_symbol="1218.TW",
+  )
+
+  # Act
+  roe = provider.get_latest_roe(input_info)
+
+  # Assert
+  assert roe == pytest.approx(15.0)
+  mock_ticker.assert_called_once_with("1218.TW")
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_beta_with_stock_info(mock_download):
+  # Arrange
+  import pandas as pd
+
+  dates = pd.date_range("2026-01-01", periods=5)
+  data = {
+    ("Close", "1218.TW"): [10.0, 11.0, 12.0, 11.0, 13.0],
+    ("Close", "^TWII"): [100.0, 101.0, 102.0, 101.0, 103.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+  input_info = StockInfo(
+    company_name="Taisun Enterprise Co., Ltd.",
+    currency="TWD",
+    current_price=14.25,
+    previous_close_price=14.3,
+    market_cap=6930044928.0,
+    stock_symbol="1218.TW",
+  )
+
+  # Act
+  beta = provider.get_beta(input_info, "^TWII")
+
+  # Assert
+  assert beta == pytest.approx(8.976885215675251)
+  mock_download.assert_called_once_with(
+    tickers=["1218.TW", "^TWII"],
+    period="5y",
+    auto_adjust=True,
+    progress=False,
+  )
+
+
+@patch("finance_agent.tools.yfinance_finance.yf.download")
+def test_get_alpha_with_stock_info(mock_download):
+  # Arrange
+  import pandas as pd
+
+  dates = pd.date_range("2026-01-01", periods=5)
+  data = {
+    ("Close", "1218.TW"): [10.0, 10.1, 10.2, 10.3, 10.4],
+    ("Close", "^TWII"): [100.0, 100.5, 101.0, 101.5, 102.0],
+  }
+  mock_df = pd.DataFrame(data, index=dates)
+  mock_download.return_value = mock_df
+
+  provider = YahooFinanceProvider()
+  input_info = StockInfo(
+    company_name="Taisun Enterprise Co., Ltd.",
+    currency="TWD",
+    current_price=14.25,
+    previous_close_price=14.3,
+    market_cap=6930044928.0,
+    stock_symbol="1218.TW",
+  )
+
+  # Act
+  alpha = provider.get_alpha(input_info, "^TWII", risk_free_rate=0.015, period="1mo")
+
+  # Assert
+  assert isinstance(alpha, float)
+  mock_download.assert_called_once_with(
+    tickers=["1218.TW", "^TWII"],
+    period="1mo",
+    auto_adjust=True,
+    progress=False,
+  )
+
+
 def test_dump_and_load_stock_info_cache():
   stock = StockInfo(
     company_name="TSMC",
