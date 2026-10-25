@@ -44,10 +44,12 @@ def _dump_stock_info_cache(stock_info: StockInfo) -> pd.DataFrame:
 class YahooFinanceProvider(BaseProvider):
   """Provider to get Finance data using yfinance."""
 
-  def _resolve_symbol(self, symbol: str | int | SymbolInfo) -> str:
-    """Resolves symbol, stock ID, or SymbolInfo into a Yahoo Finance ticker string."""
+  def _resolve_symbol(self, symbol: str | int | SymbolInfo | StockInfo) -> str:
+    """Resolves symbol, stock ID, SymbolInfo, or StockInfo into a Yahoo Finance ticker string."""
     if isinstance(symbol, SymbolInfo):
       return symbol.symbol
+    if isinstance(symbol, StockInfo):
+      return symbol.stock_symbol
     resolved_symbol = str(symbol)
     try:
       return stock_id_to_symbol(resolved_symbol)
@@ -60,11 +62,11 @@ class YahooFinanceProvider(BaseProvider):
     loader=_load_stock_info_cache,
     dumper=_dump_stock_info_cache,
   )
-  def get_stock_info(self, symbol: str | int | SymbolInfo) -> StockInfo:
+  def get_stock_info(self, symbol: str | int | SymbolInfo | StockInfo) -> StockInfo:
     """Gets stock information according to given symbol.
 
     Args:
-     symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
+     symbol: Stock symbol. e.g. `2330.TW`, ID `2330`, a `SymbolInfo` object, or a `StockInfo` object.
 
     Returns:
      Company information as `StockInfo`.
@@ -114,11 +116,11 @@ class YahooFinanceProvider(BaseProvider):
         raise
       raise FinanceDataError(f"Error fetching data for {resolved_symbol}: {e}") from e
 
-  def get_latest_roe(self, symbol: str | int | SymbolInfo) -> float:
+  def get_latest_roe(self, symbol: str | int | SymbolInfo | StockInfo) -> float:
     """Gets latest ROE of given stock sympol/ID.
 
     Args:
-      symbol: Stock symbol/ID. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
+      symbol: Stock symbol/ID. e.g. `2330.TW`, ID `2330`, a `SymbolInfo` object, or a `StockInfo` object.
 
     Returns:
       Latest ROE as a percentage.
@@ -149,7 +151,7 @@ class YahooFinanceProvider(BaseProvider):
 
   def get_beta(
     self,
-    symbol: str | int | SymbolInfo,
+    symbol: str | int | SymbolInfo | StockInfo,
     benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
     period: str = "5y",
   ) -> float:
@@ -162,7 +164,7 @@ class YahooFinanceProvider(BaseProvider):
     - beta < 0.0: tends to move in the opposite direction
 
     Args:
-      symbol: Stock symbol. e.g. "2330.TW", ID "2330" or a `SymbolInfo` object.
+      symbol: Stock symbol. e.g. "2330.TW", ID "2330", a `SymbolInfo` object, or a `StockInfo` object.
       benchmark_symbol: Benchmark ticker, default is "^GSPC" for S&P 500.
       period: Historical-data period accepted by yfinance, for example
           "1y", "2y", "5y", or "10y".
@@ -219,7 +221,7 @@ class YahooFinanceProvider(BaseProvider):
 
   def get_alpha(
     self,
-    symbol: str | int | SymbolInfo,
+    symbol: str | int | SymbolInfo | StockInfo,
     benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
     risk_free_rate: float = 0.015,
     period: str = "5y",
@@ -230,7 +232,7 @@ class YahooFinanceProvider(BaseProvider):
       alpha = Ri - [Rf + beta * (Rm - Rf)]
 
     Args:
-      symbol: Stock symbol. e.g. "2330.TW", ID "2330" or a `SymbolInfo` object.
+      symbol: Stock symbol. e.g. "2330.TW", ID "2330", a `SymbolInfo` object, or a `StockInfo` object.
       benchmark_symbol: Market index (e.g. "^TWII", "^GSPC")
       risk_free_rate: Annual risk-free rate in decimal form.
         Example: 0.015 = 1.5%, 0.04  = 4%

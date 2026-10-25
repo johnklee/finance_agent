@@ -118,6 +118,43 @@ def test_agent_tools_with_symbol_info(
   )
 
 
+@patch("finance_agent.agent._provider.get_stock_info")
+@patch("finance_agent.agent._provider.get_latest_roe")
+@patch("finance_agent.agent._provider.get_beta")
+@patch("finance_agent.agent._provider.get_alpha")
+def test_agent_tools_with_stock_info(
+  mock_get_alpha, mock_get_beta, mock_get_roe, mock_get_info
+):
+  stock_info = StockInfo(
+    company_name="TSMC",
+    currency="TWD",
+    current_price=600.0,
+    previous_close_price=590.0,
+    market_cap=15000000.0,
+    stock_symbol="2330.TW",
+  )
+  mock_get_info.return_value = stock_info
+  mock_get_roe.return_value = 25.5
+  mock_get_beta.return_value = 1.2
+  mock_get_alpha.return_value = 3.5
+
+  assert get_stock_info(stock_info).company_name == "TSMC"
+  mock_get_info.assert_called_once_with(stock_info)
+
+  assert get_latest_roe(stock_info) == 25.5
+  mock_get_roe.assert_called_once_with(stock_info)
+
+  assert get_beta(stock_info) == 1.2
+  mock_get_beta.assert_called_once_with(
+    stock_info, benchmark_symbol="^TWII", period="5y"
+  )
+
+  assert get_alpha(stock_info) == 3.5
+  mock_get_alpha.assert_called_once_with(
+    stock_info, benchmark_symbol="^TWII", risk_free_rate=0.015, period="5y"
+  )
+
+
 def test_finance_agent_class():
   mock_provider = MagicMock()
   agent = FinanceAgent(provider=mock_provider)

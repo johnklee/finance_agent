@@ -21,11 +21,13 @@ warnings.filterwarnings("ignore", category=UserWarning, message=r".*\[EXPERIMENT
 _provider: BaseProvider = YahooFinanceProvider()
 
 
-def get_stock_info(symbol: str | int | SymbolInfo) -> StockInfo | str:
+def get_stock_info(
+  symbol: str | int | SymbolInfo | StockInfo,
+) -> StockInfo | str:
   """Gets stock information including price, market cap, and dividend yield.
 
   Args:
-    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
+    symbol: Stock symbol, Taiwan stock ID, SymbolInfo, or StockInfo object (e.g., '2330.TW', 2330, SymbolInfo, or StockInfo).
 
   Returns:
     StockInfo dataclass containing company details, or an error message string if an error occurs.
@@ -36,11 +38,13 @@ def get_stock_info(symbol: str | int | SymbolInfo) -> StockInfo | str:
     return f"Error fetching stock info for symbol '{symbol}': {e}"
 
 
-def get_latest_roe(symbol: str | int | SymbolInfo) -> float | str:
+def get_latest_roe(
+  symbol: str | int | SymbolInfo | StockInfo,
+) -> float | str:
   """Gets the latest Return on Equity (ROE) percentage for a given stock.
 
   Args:
-    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
+    symbol: Stock symbol, Taiwan stock ID, SymbolInfo, or StockInfo object (e.g., '2330.TW', 2330, SymbolInfo, or StockInfo).
 
   Returns:
     Latest ROE as a percentage float, or an error message string if an error occurs.
@@ -52,14 +56,14 @@ def get_latest_roe(symbol: str | int | SymbolInfo) -> float | str:
 
 
 def get_beta(
-  symbol: str | int | SymbolInfo,
+  symbol: str | int | SymbolInfo | StockInfo,
   benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
   period: str = "5y",
 ) -> float | str:
   """Calculates a stock's beta relative to a benchmark index.
 
   Args:
-    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
+    symbol: Stock symbol, Taiwan stock ID, SymbolInfo, or StockInfo object (e.g., '2330.TW', 2330, SymbolInfo, or StockInfo).
     benchmark_symbol: Benchmark index symbol (default: ^TWII).
     period: Historical period (e.g., '1y', '5y').
 
@@ -73,7 +77,7 @@ def get_beta(
 
 
 def get_alpha(
-  symbol: str | int | SymbolInfo,
+  symbol: str | int | SymbolInfo | StockInfo,
   benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
   risk_free_rate: float = 0.015,
   period: str = "5y",
@@ -81,7 +85,7 @@ def get_alpha(
   """Calculates CAPM Alpha for a stock relative to a benchmark index.
 
   Args:
-    symbol: Stock symbol, Taiwan stock ID, or SymbolInfo object (e.g., '2330.TW', 2330, or SymbolInfo).
+    symbol: Stock symbol, Taiwan stock ID, SymbolInfo, or StockInfo object (e.g., '2330.TW', 2330, SymbolInfo, or StockInfo).
     benchmark_symbol: Market index symbol (default: ^TWII).
     risk_free_rate: Annual risk-free rate in decimal form (default: 0.015).
     period: Historical period used to estimate returns and beta (default: '5y').
@@ -127,20 +131,24 @@ class FinanceAgent:
       provider if provider is not None else YahooFinanceProvider()
     )
 
-    def _get_stock_info(symbol: str | int) -> StockInfo | str:
+    def _get_stock_info(
+      symbol: str | int | SymbolInfo | StockInfo,
+    ) -> StockInfo | str:
       try:
         return self.provider.get_stock_info(symbol)
       except (ValueError, KeyError, FinanceDataError) as e:
         return f"Error fetching stock info for symbol '{symbol}': {e}"
 
-    def _get_latest_roe(symbol: str | int) -> float | str:
+    def _get_latest_roe(
+      symbol: str | int | SymbolInfo | StockInfo,
+    ) -> float | str:
       try:
         return self.provider.get_latest_roe(symbol)
       except (ValueError, KeyError, FinanceDataError) as e:
         return f"Error fetching ROE for symbol '{symbol}': {e}"
 
     def _get_beta(
-      symbol: str | int,
+      symbol: str | int | SymbolInfo | StockInfo,
       benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
       period: str = "5y",
     ) -> float | str:
@@ -152,7 +160,7 @@ class FinanceAgent:
         return f"Error calculating beta for symbol '{symbol}': {e}"
 
     def _get_alpha(
-      symbol: str | int,
+      symbol: str | int | SymbolInfo | StockInfo,
       benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
       risk_free_rate: float = 0.015,
       period: str = "5y",

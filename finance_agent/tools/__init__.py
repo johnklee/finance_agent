@@ -61,21 +61,21 @@ class StockInfo:
 class BaseProvider(Protocol):
   """Provider base class to get Finance data."""
 
-  def get_stock_info(self, symbol: str | int | SymbolInfo) -> StockInfo:
+  def get_stock_info(self, symbol: str | int | SymbolInfo | StockInfo) -> StockInfo:
     """Gets stock information according to given sympol.
 
     Args:
-      symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
+      symbol: Stock symbol. e.g. `2330.TW`, ID `2330`, a `SymbolInfo` object, or a `StockInfo` object.
 
     Returns:
       Compony information as `StockInfo`.
     """
 
-  def get_latest_roe(self, symbol: str | int | SymbolInfo) -> float:
+  def get_latest_roe(self, symbol: str | int | SymbolInfo | StockInfo) -> float:
     """Gets latest ROE of given stock sympol/ID.
 
     Args:
-      symbol: Stock symbol/ID. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
+      symbol: Stock symbol/ID. e.g. `2330.TW`, ID `2330`, a `SymbolInfo` object, or a `StockInfo` object.
 
     Returns:
       Latest ROE as a percentage.
@@ -87,7 +87,7 @@ class BaseProvider(Protocol):
 
   def get_beta(
     self,
-    symbol: str | int | SymbolInfo,
+    symbol: str | int | SymbolInfo | StockInfo,
     benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
     period: str = "5y",
   ) -> float:
@@ -100,7 +100,7 @@ class BaseProvider(Protocol):
     - beta < 0.0: tends to move in the opposite direction
 
     Args:
-      symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
+      symbol: Stock symbol. e.g. `2330.TW`, ID `2330`, a `SymbolInfo` object, or a `StockInfo` object.
       benchmark_symbol: Benchmark ticker, default is "^GSPC" for S&P 500.
       period: Historical-data period accepted by yfinance, for example
           "1y", "2y", "5y", or "10y".
@@ -114,7 +114,7 @@ class BaseProvider(Protocol):
 
   def get_alpha(
     self,
-    symbol: str | int | SymbolInfo,
+    symbol: str | int | SymbolInfo | StockInfo,
     benchmark_symbol: str = TW_BENCHMARK_SYMBOL,
     risk_free_rate: float = 0.015,
     period: str = "5y",
@@ -125,7 +125,7 @@ class BaseProvider(Protocol):
       alpha = Ri - [Rf + beta * (Rm - Rf)]
 
     Args:
-      symbol: Stock symbol. e.g. `2330.TW`, ID `2330` or a `SymbolInfo` object.
+      symbol: Stock symbol. e.g. `2330.TW`, ID `2330`, a `SymbolInfo` object, or a `StockInfo` object.
       benchmark_symbol: Market index (e.g. "^TWII", "^GSPC")
       risk_free_rate: Annual risk-free rate in decimal form.
         Example: 0.015 = 1.5%, 0.04  = 4%
